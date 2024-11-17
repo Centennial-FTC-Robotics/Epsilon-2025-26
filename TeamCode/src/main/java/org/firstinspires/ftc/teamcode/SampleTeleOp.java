@@ -5,6 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp (name = "SampleTeleOp")
 public class SampleTeleOp extends LinearOpMode {
@@ -15,6 +16,11 @@ public class SampleTeleOp extends LinearOpMode {
     private DcMotorEx driveFR;
     private DcMotorEx slideMotorR;
     private DcMotorEx slideMotorL;
+
+    private Servo slideServo;
+
+    private Servo clawServo;
+
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -27,6 +33,11 @@ public class SampleTeleOp extends LinearOpMode {
         slideMotorR = hardwareMap.get(DcMotorEx.class, "slideMotorRight");
         slideMotorL = hardwareMap.get(DcMotorEx.class, "slideMotorLeft");
 
+        slideServo = hardwareMap.get(Servo.class, "slideServo");
+
+        clawServo = hardwareMap.get(Servo.class, "clawServo");
+
+
 
         driveBL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         driveBR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -35,6 +46,9 @@ public class SampleTeleOp extends LinearOpMode {
 
         slideMotorR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         slideMotorL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+
+
 
 
 
@@ -76,9 +90,20 @@ public class SampleTeleOp extends LinearOpMode {
             slideMotorR.setPower(slidePowerUp > 0 ? slidePowerUp : slidePowerDown);
 
 
+            if(gamepad1.a) {
+                slideServo.setPosition(0.0);
+            } else if (gamepad1.b) {
+                slideServo.setPosition(0.5);
+            } else if (gamepad1.y) {
+                slideServo.setPosition(1.0);
+            }
 
 
-
+            if (gamepad1.left_bumper) {
+                clawServo.setPosition(1.0);
+            } else if (gamepad1.right_bumper) {
+                clawServo.setPosition(0.0);
+            }
 
 
         }
