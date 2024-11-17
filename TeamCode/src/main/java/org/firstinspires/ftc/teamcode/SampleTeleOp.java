@@ -13,6 +13,8 @@ public class SampleTeleOp extends LinearOpMode {
     private DcMotorEx driveBR;
     private DcMotorEx driveFL;
     private DcMotorEx driveFR;
+    private DcMotorEx slideMotorR;
+    private DcMotorEx slideMotorL;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -22,15 +24,29 @@ public class SampleTeleOp extends LinearOpMode {
         driveFL = hardwareMap.get(DcMotorEx.class, "frontLeft");
         driveFR = hardwareMap.get(DcMotorEx.class, "frontRight");
 
+        slideMotorR = hardwareMap.get(DcMotorEx.class, "slideMotorRight");
+        slideMotorL = hardwareMap.get(DcMotorEx.class, "slideMotorLeft");
+
+
         driveBL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         driveBR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         driveFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         driveFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+        slideMotorR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        slideMotorL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+
+
         driveBL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         driveBR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         driveFL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         driveFR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        slideMotorR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        slideMotorL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+
 
         // SWAP THESE IF NEEDED
         driveBL.setDirection(DcMotorEx.Direction.REVERSE);
@@ -38,6 +54,8 @@ public class SampleTeleOp extends LinearOpMode {
         driveFL.setDirection(DcMotorEx.Direction.REVERSE);
         driveFR.setDirection(DcMotorEx.Direction.REVERSE);
         waitForStart();
+
+
         while(opModeIsActive()) {
             double y = -gamepad1.left_stick_y;
             double x = gamepad1.left_stick_x;
@@ -48,6 +66,26 @@ public class SampleTeleOp extends LinearOpMode {
             driveBR.setPower((y + x - rx) / d);
             driveFL.setPower((y + x + rx) / d);
             driveFR.setPower((y - x - rx) / d);
+
+
+
+            double slidePowerUp = gamepad1.right_trigger;
+            double slidePowerDown = -gamepad1.left_trigger;
+
+            slideMotorL.setPower(slidePowerUp > 0 ? slidePowerUp : slidePowerDown);
+            slideMotorR.setPower(slidePowerUp > 0 ? slidePowerUp : slidePowerDown);
+
+
+
+
+
+
+
         }
+
+
+
+
+
     }
 }
