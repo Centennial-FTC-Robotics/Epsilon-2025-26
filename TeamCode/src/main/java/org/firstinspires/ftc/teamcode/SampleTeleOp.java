@@ -47,11 +47,6 @@ public class SampleTeleOp extends LinearOpMode {
         slideMotorR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         slideMotorL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-
-
-
-
-
         driveBL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         driveBR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         driveFL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
