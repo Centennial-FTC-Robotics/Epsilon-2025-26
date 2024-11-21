@@ -59,9 +59,11 @@ public class SampleTeleOp extends LinearOpMode {
 
         // SWAP THESE IF NEEDED
         driveBL.setDirection(DcMotorEx.Direction.REVERSE);
-//        driveBR.setDirection(DcMotorEx.Direction.REVERSE);
+        //driveBR.setDirection(DcMotorEx.Direction.REVERSE);
         driveFL.setDirection(DcMotorEx.Direction.REVERSE);
-        driveFR.setDirection(DcMotorEx.Direction.REVERSE);
+        //driveFR.setDirection(DcMotorEx.Direction.REVERSE);
+
+
         waitForStart();
 
 
@@ -94,10 +96,12 @@ public class SampleTeleOp extends LinearOpMode {
             }
 
 
-            if (gamepad1.left_bumper) {
-                clawServo.setPosition(1.0);
-            } else if (gamepad1.right_bumper) {
+            if (gamepad1.right_bumper) {
+                //closes claw
                 clawServo.setPosition(0.0);
+            } else if (gamepad1.left_bumper) {
+                //opens claw
+                clawServo.setPosition(0.4);
             }
 
 

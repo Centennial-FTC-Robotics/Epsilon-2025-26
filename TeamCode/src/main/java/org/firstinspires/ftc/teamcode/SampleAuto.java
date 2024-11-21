@@ -16,8 +16,6 @@ public class SampleAuto extends LinearOpMode {
     private DcMotorEx slideMotorL;
 
 
-
-
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -28,16 +26,36 @@ public class SampleAuto extends LinearOpMode {
         slideMotorR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         slideMotorL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-
-
         Drivetrain drivetrain = new Drivetrain(hardwareMap);
 
         waitForStart();
         drivetrain.move(24.0,"strafe");
 
+        drivetrain.move(12.0, "drive");
+
+
+        slideMotorR.setPower(1.0);
+        slideMotorL.setPower(1.0);
 
 
         drivetrain.move(12.0, "drive");
+
+
+        slideMotorR.setPower(-1.0);
+        slideMotorL.setPower(-1.0);
+
+
+        //hook
+
+
+
+
+
+        //raise slides
+        //another move 12 to specimens
+        //lower slides to hook speciemn
+
+
 
 
     }
