@@ -15,11 +15,13 @@ public class Slides {
         slideMotorL = hMap.get(DcMotorEx.class, "slideMotorLeft");
     }
 
+
     public void slideUp(int targetPosition, double power) {
         slideMotorL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slideMotorR.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         slideMotorL.setTargetPosition(targetPosition); //
-        slideMotorL.setTargetPosition(targetPosition);
+        slideMotorR.setTargetPosition(targetPosition);
 
         slideMotorL.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         slideMotorR.setMode(DcMotor.RunMode.RUN_TO_POSITION);

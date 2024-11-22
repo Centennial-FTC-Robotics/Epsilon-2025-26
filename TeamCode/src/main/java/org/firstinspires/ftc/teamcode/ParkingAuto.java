@@ -7,7 +7,6 @@ Start parallel to the observation zone with wheels touching the wall. Strafes ri
 
  */
 
-
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -30,9 +29,6 @@ public class ParkingAuto extends LinearOpMode {
         drivetrain.move(30.0, "strafe");
 
     }
-
-
-
 
 
 }

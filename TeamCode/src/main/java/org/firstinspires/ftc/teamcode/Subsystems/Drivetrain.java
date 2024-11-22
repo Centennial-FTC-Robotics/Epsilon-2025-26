@@ -44,22 +44,24 @@ public class Drivetrain {
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         int position = (int) inches_to_ticks(inches);
-        if (mode == "drive") {
+        if (mode.equals("drive")) {
             frontLeft.setTargetPosition(-position);
             frontRight.setTargetPosition(-position);
             backLeft.setTargetPosition(-position);
             backRight.setTargetPosition(-position);
-        } else if (mode == "strafe") {
+        } else if (mode.equals("strafe")) {
             frontLeft.setTargetPosition(-position);
             frontRight.setTargetPosition(position);
             backLeft.setTargetPosition(position);
             backRight.setTargetPosition(-position);
-        } else if (mode == "rotate") {
+        } else if (mode.equals("rotate")) {
             frontLeft.setTargetPosition(-position);
             frontRight.setTargetPosition(position);
             backLeft.setTargetPosition(-position);
             backRight.setTargetPosition(position);
         }
+
+
 
         frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -75,4 +77,6 @@ public class Drivetrain {
 
         //drive :)
     }
+
+
 }

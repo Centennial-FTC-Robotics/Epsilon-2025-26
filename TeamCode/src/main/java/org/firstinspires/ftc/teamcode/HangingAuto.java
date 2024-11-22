@@ -4,8 +4,6 @@ Level 1 ascent
 
  */
 
-
-
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -28,8 +26,6 @@ public class HangingAuto extends LinearOpMode {
 
     private Servo clawServo;
 
-
-
     public void runOpMode() throws InterruptedException {
 
         slideMotorR = hardwareMap.get(DcMotorEx.class, "slideMotorRight");
@@ -47,6 +43,7 @@ public class HangingAuto extends LinearOpMode {
 
         waitForStart();
 
+
         drivetrain.move(-21.0,"strafe");
 
         drivetrain.move(48.0,"drive");
@@ -55,14 +52,9 @@ public class HangingAuto extends LinearOpMode {
 
         drivetrain.move(12.0, "drive"); //subject to tuning
 
-
-
         Slides mainSlides = new Slides(hardwareMap);
 
         mainSlides.slideUp(300,0.7); //subject to change after testing
-
-
-
 
         /*
         slideMotorL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -79,8 +71,6 @@ public class HangingAuto extends LinearOpMode {
         slideMotorL.setPower(0.0);
         slideMotorR.setPower(0.0);
         */
-
-
 
 
     }
