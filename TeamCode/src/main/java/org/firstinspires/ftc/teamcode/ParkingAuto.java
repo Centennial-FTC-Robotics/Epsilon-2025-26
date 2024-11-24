@@ -15,7 +15,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.Subsystems.Drivetrain;
 
 
-@Autonomous(name = "SecondaryParkingAuto")
+@Autonomous(name = "ParkingAuto")
 public class ParkingAuto extends LinearOpMode {
 
 
@@ -26,7 +26,7 @@ public class ParkingAuto extends LinearOpMode {
 
         waitForStart();
 
-        drivetrain.move(30.0, "strafe");
+        drivetrain.move(-12.0, "strafe");
 
     }
 

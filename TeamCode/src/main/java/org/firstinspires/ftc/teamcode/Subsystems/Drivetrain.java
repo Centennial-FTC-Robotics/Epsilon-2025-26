@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.Subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 public class Drivetrain {
@@ -16,8 +17,8 @@ public class Drivetrain {
         backLeft = hMap.get(DcMotor.class, "backLeft");
         backRight = hMap.get(DcMotor.class, "backRight");
 
-        frontRight.setDirection(DcMotor.Direction.REVERSE);
-        backRight.setDirection(DcMotor.Direction.REVERSE);
+        //frontRight.setDirection(DcMotor.Direction.REVERSE);
+        backLeft.setDirection(DcMotor.Direction.REVERSE);
 
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -28,6 +29,7 @@ public class Drivetrain {
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
     }
 
     private double inches_to_ticks(double inches) {
@@ -43,18 +45,21 @@ public class Drivetrain {
         backLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         backRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
+
+
+
         int position = (int) inches_to_ticks(inches);
-        if (mode.equals("drive")) {
+        if (mode == "drive") {
             frontLeft.setTargetPosition(-position);
             frontRight.setTargetPosition(-position);
             backLeft.setTargetPosition(-position);
             backRight.setTargetPosition(-position);
-        } else if (mode.equals("strafe")) {
+        } else if (mode == "strafe") {
             frontLeft.setTargetPosition(-position);
             frontRight.setTargetPosition(position);
             backLeft.setTargetPosition(position);
             backRight.setTargetPosition(-position);
-        } else if (mode.equals("rotate")) {
+        } else if (mode == "rotate") {
             frontLeft.setTargetPosition(-position);
             frontRight.setTargetPosition(position);
             backLeft.setTargetPosition(-position);
