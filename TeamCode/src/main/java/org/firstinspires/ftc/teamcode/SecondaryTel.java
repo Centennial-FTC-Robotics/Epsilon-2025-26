@@ -11,8 +11,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
 
-@TeleOp (name = "SampleTeleOp")
-public class SampleTeleOp extends LinearOpMode {
+@TeleOp (name = "SecondaryTel")
+public class SecondaryTel extends LinearOpMode {
 
     private DcMotorEx driveBL;
     private DcMotorEx driveBR;
@@ -24,6 +24,7 @@ public class SampleTeleOp extends LinearOpMode {
     private Servo slideServo;
 
     private Servo clawServo;
+    private Servo slideServo2;
 
     //private boolean clawCurrentlyClosed = true;
 
@@ -40,6 +41,8 @@ public class SampleTeleOp extends LinearOpMode {
         slideMotorL = hardwareMap.get(DcMotorEx.class, "slideMotorLeft");
 
         slideServo = hardwareMap.get(Servo.class, "slideServo");
+        slideServo2 = hardwareMap.get(Servo.class,"slideServo2");
+
 
         clawServo = hardwareMap.get(Servo.class, "clawServo");
 
@@ -135,14 +138,22 @@ public class SampleTeleOp extends LinearOpMode {
                 slidePowerDown = gamepad2.left_trigger * 0.8;
             }
             slideMotorR.setPower((slidePowerUp - slidePowerDown));
-           //slideMotorR.setPower(slidePowerUp > 0 ? slidePowerUp : slidePowerDown);
+            //slideMotorR.setPower(slidePowerUp > 0 ? slidePowerUp : slidePowerDown);
 
-            if(gamepad2.a) {
-                slideServo.setPosition(0.772);
+            if(gamepad2.y) {
+                slideServo.setPosition(0.228);
             } else if (gamepad2.b) {
-                slideServo.setPosition(0.65);
-            } else if (gamepad2.y) {
-                slideServo.setPosition(0.2);
+                slideServo.setPosition(0.47);
+            } else if (gamepad2.a) {
+                slideServo.setPosition(0.785);
+            }
+
+            if(gamepad2.y) {
+                slideServo2.setPosition(0.228);
+            } else if (gamepad2.b) {
+                slideServo2.setPosition(0.47);
+            } else if (gamepad2.a) {
+                slideServo2.setPosition(0.785);
             }
 
             /*
