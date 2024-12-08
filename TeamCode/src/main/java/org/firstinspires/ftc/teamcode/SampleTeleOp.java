@@ -39,7 +39,7 @@ public class SampleTeleOp extends LinearOpMode {
         slideMotorR = hardwareMap.get(DcMotorEx.class, "slideMotorRight");
         slideMotorL = hardwareMap.get(DcMotorEx.class, "slideMotorLeft");
 
-        armServo = hardwareMap.get(Servo.class, "armServo");
+        armServo = hardwareMap.get(Servo.class, "slideServo");
         clawServo = hardwareMap.get(Servo.class, "clawServo");
 
         driveBL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
