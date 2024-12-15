@@ -21,7 +21,7 @@ public class SampleTeleOp extends LinearOpMode {
     private DcMotorEx slideMotorR;
     private DcMotorEx slideMotorL;
 
-    private Servo slideServo;
+    private Servo armServo;
 
     private Servo clawServo;
 
@@ -39,12 +39,8 @@ public class SampleTeleOp extends LinearOpMode {
         slideMotorR = hardwareMap.get(DcMotorEx.class, "slideMotorRight");
         slideMotorL = hardwareMap.get(DcMotorEx.class, "slideMotorLeft");
 
-        slideServo = hardwareMap.get(Servo.class, "slideServo");
-
+        armServo = hardwareMap.get(Servo.class, "slideServo");
         clawServo = hardwareMap.get(Servo.class, "clawServo");
-
-
-
 
         driveBL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         driveBR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -83,8 +79,10 @@ public class SampleTeleOp extends LinearOpMode {
 
         double slidePowerUp = 0;
         double slidePowerDown = 0;
-
-        while(opModeIsActive()) {
+        double armPosition = 0;
+        boolean isClawOpened = false;
+        boolean isBumperPressed = false;
+        while (opModeIsActive()) {
             double y = -gamepad1.left_stick_y;
             double x = gamepad1.left_stick_x;
             double rx = gamepad1.right_stick_x;
@@ -131,38 +129,34 @@ public class SampleTeleOp extends LinearOpMode {
             if (slideMotorL.getCurrentPosition() <= 10) {
                 //slidePowerDown = -gamepad1.left_trigger * 0.8;
                 slidePowerDown = 0;
-            }
-            else {
+            } else {
                 slidePowerDown = gamepad2.left_trigger * 0.8;
             }
             slideMotorR.setPower((slidePowerUp - slidePowerDown));
            //slideMotorR.setPower(slidePowerUp > 0 ? slidePowerUp : slidePowerDown);
 
-            if(gamepad2.a) {
-                slideServo.setPosition(0.772);
+//            if(gamepad2.a) {
+//                armServo.setPosition(0.772);
+//            } else if (gamepad2.b) {
+//                armServo.setPosition(0.65);
+//            } else if (gamepad2.y) {
+//                armServo.setPosition(0.2);
+//            }
+
+            if (gamepad2.a) { // clamp values between min and max while increment or decrement
+                armPosition = Math.max(0.2, Math.min(0.772, armPosition + 0.05));
+                armServo.setPosition(armPosition);
             } else if (gamepad2.b) {
-                slideServo.setPosition(0.65);
-            } else if (gamepad2.y) {
-                slideServo.setPosition(0.2);
+                armPosition = Math.max(0.2, Math.min(0.772, armPosition - 0.05));
+                armServo.setPosition(armPosition);
             }
 
-            /*
-            if(gamepad1.a) {
-                slideServo.setPosition(0.772);
-            } else if (gamepad1.b) {
-                slideServo.setPosition(0.65);
-            } else if (gamepad1.y) {
-                slideServo.setPosition(0.2);
-            }*/
-
-
-
-            if (gamepad2.right_bumper) {
-                //closes claw
-                clawServo.setPosition(0.0);
-            } else if (gamepad2.left_bumper) {
-                //opens claw
-                clawServo.setPosition(0.45);
+            if (gamepad2.left_bumper && !isBumperPressed) {
+                isClawOpened = !isClawOpened;
+                isBumperPressed = true;
+                clawServo.setPosition(isClawOpened ? 0.45 : 0.0);
+            } else {
+                isBumperPressed = false;
             }
 
 
