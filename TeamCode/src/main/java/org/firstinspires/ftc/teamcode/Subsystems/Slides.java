@@ -2,8 +2,12 @@ package org.firstinspires.ftc.teamcode.Subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+
+
+
 
 public class Slides {
 
@@ -13,6 +17,12 @@ public class Slides {
     public Slides(final HardwareMap hMap) {
         slideMotorR = hMap.get(DcMotorEx.class, "slideMotorRight");
         slideMotorL = hMap.get(DcMotorEx.class, "slideMotorLeft");
+
+        slideMotorR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        slideMotorL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        slideMotorR.setDirection(DcMotorSimple.Direction.FORWARD);
+        slideMotorL.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
 
