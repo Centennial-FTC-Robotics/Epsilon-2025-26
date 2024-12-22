@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.Autonomous;
 import androidx.annotation.NonNull;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
@@ -25,6 +25,9 @@ public class SlidesAuto extends LinearOpMode {
         private DcMotorEx lift; //lift is left
         private DcMotorEx lift2; //lift2 is right
 
+
+
+
         public Lift(HardwareMap hardwareMap) {
             lift = hardwareMap.get(DcMotorEx.class, "slideMotorLeft");
             lift2 = hardwareMap.get(DcMotorEx.class,"slideMotorRight");
@@ -33,6 +36,9 @@ public class SlidesAuto extends LinearOpMode {
             lift2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             lift2.setDirection(DcMotorSimple.Direction.FORWARD);
         }
+
+
+
 
         public class LiftUp implements Action {
             private boolean initialized = false;
@@ -92,6 +98,10 @@ public class SlidesAuto extends LinearOpMode {
         }
     }
 
+
+
+
+
     public class Claw {
         private Servo claw;
 
@@ -120,6 +130,41 @@ public class SlidesAuto extends LinearOpMode {
         public Action openClaw() {
             return new OpenClaw();
         }
+    }
+
+
+    public class ArmServo {
+        private Servo armServo;
+
+        public ArmServo(HardwareMap hardwareMap) {
+            armServo = hardwareMap.get(Servo.class,"clawServo");
+        }
+
+        public class RaiseArm implements Action {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                armServo.setPosition(.772);   //TO CHANGE
+                return false;
+            }
+        }
+
+        public Action raiseArm() {
+            return new RaiseArm();
+        }
+
+        public class LowerArm implements Action {
+            @Override
+            public boolean run(@NonNull TelemetryPacket packet) {
+                armServo.setPosition(.21);
+                return false;
+            }
+        }
+
+        public Action lowerArm() {
+            return new LowerArm();
+        }
+
+
     }
 
     @Override

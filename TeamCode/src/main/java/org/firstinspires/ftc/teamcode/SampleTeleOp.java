@@ -39,7 +39,7 @@ public class SampleTeleOp extends LinearOpMode {
         slideMotorR = hardwareMap.get(DcMotorEx.class, "slideMotorRight");
         slideMotorL = hardwareMap.get(DcMotorEx.class, "slideMotorLeft");
 
-        armServo = hardwareMap.get(Servo.class, "slideServo");
+        armServo = hardwareMap.get(Servo.class, "armServo"); // change in the configuration next time test
         clawServo = hardwareMap.get(Servo.class, "clawServo");
 
         driveBL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -120,12 +120,9 @@ public class SampleTeleOp extends LinearOpMode {
             driveFL.setPower(frontLeftPower);
             driveFR.setPower(frontRightPower);*/
 
-            //slidePowerUp = gamepad1.right_trigger;
             slidePowerUp = gamepad2.right_trigger * 0.8;
-            //slidePowerDown = gamepad2.left_trigger;
 
-            telemetry.addData("Current Slide Encoder Reading", slideMotorL.getCurrentPosition());
-            telemetry.update();
+
             if (slideMotorL.getCurrentPosition() <= 10) {
                 //slidePowerDown = -gamepad1.left_trigger * 0.8;
                 slidePowerDown = 0;
@@ -133,8 +130,12 @@ public class SampleTeleOp extends LinearOpMode {
                 slidePowerDown = gamepad2.left_trigger * 0.8;
             }
             slideMotorR.setPower((slidePowerUp - slidePowerDown));
+
+
            //slideMotorR.setPower(slidePowerUp > 0 ? slidePowerUp : slidePowerDown);
 
+//
+//
 //            if(gamepad2.a) {
 //                armServo.setPosition(0.772);
 //            } else if (gamepad2.b) {
