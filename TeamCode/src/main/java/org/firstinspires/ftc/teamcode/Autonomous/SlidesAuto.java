@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import org.firstinspires.ftc.teamcode.MecanumDrive;
+import org.firstinspires.ftc.teamcode.Subsystems.Slides;
 
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -66,6 +67,8 @@ public class SlidesAuto extends LinearOpMode {
 
             }
         }
+
+
         public Action liftUp() {
             return new LiftUp();
         }
@@ -112,7 +115,7 @@ public class SlidesAuto extends LinearOpMode {
         public class CloseClaw implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                claw.setPosition(0.55);
+                claw.setPosition(0.0);
                 return false;
             }
         }
@@ -123,7 +126,7 @@ public class SlidesAuto extends LinearOpMode {
         public class OpenClaw implements Action {
             @Override
             public boolean run(@NonNull TelemetryPacket packet) {
-                claw.setPosition(1.0);
+                claw.setPosition(0.45);
                 return false;
             }
         }
@@ -167,6 +170,29 @@ public class SlidesAuto extends LinearOpMode {
 
     }
 
+
+    public class mainHanging {
+
+        public void hangSpecimen(HardwareMap hwMap) {
+                Lift slidePart = new Lift(hwMap);
+                Actions.runBlocking(slidePart.liftUp());
+
+                ArmServo armPart = new ArmServo(hwMap);
+                Actions.runBlocking(armPart.lowerArm());
+
+                Actions.runBlocking(slidePart.liftDown());
+
+                Claw clawPart = new Claw(hwMap);
+                Actions.runBlocking(clawPart.openClaw());
+        }
+    }
+
+
+
+
+
+
+
     @Override
     public void runOpMode() {
         Pose2d initialPose = new Pose2d(11.8, 61.7, Math.toRadians(90));
@@ -178,42 +204,42 @@ public class SlidesAuto extends LinearOpMode {
         int visionOutputPosition = 1;
 
         TrajectoryActionBuilder tab1 = drive.actionBuilder(initialPose)
-                .lineToYSplineHeading(33, Math.toRadians(0))
-                .waitSeconds(2)
-                .setTangent(Math.toRadians(90))
-                .lineToY(48)
-                .setTangent(Math.toRadians(0))
-                .lineToX(32)
-                .strafeTo(new Vector2d(44.5, 30))
-                .turn(Math.toRadians(180))
-                .lineToX(47.5)
-                .waitSeconds(3);
+                .splineToConstantHeading(new Vector2d(-9.73, 35.77), Math.toRadians(270))
+                .waitSeconds(5.0);
         TrajectoryActionBuilder tab2 = drive.actionBuilder(initialPose)
-                .lineToY(37)
-                .setTangent(Math.toRadians(0))
-                .lineToX(18)
-                .waitSeconds(3)
-                .setTangent(Math.toRadians(0))
-                .lineToXSplineHeading(46, Math.toRadians(180))
-                .waitSeconds(3);
-        TrajectoryActionBuilder tab3 = drive.actionBuilder(initialPose)
-                .lineToYSplineHeading(33, Math.toRadians(180))
-                .waitSeconds(2)
-                .strafeTo(new Vector2d(46, 30))
-                .waitSeconds(3);
+                .setTangent(Math.toRadians(180))
+                .splineToConstantHeading(new Vector2d(-35, 36.16), Math.toRadians(270))
+                .splineToConstantHeading(new Vector2d(-35, 12), Math.toRadians(270))
+                .splineToConstantHeading(new Vector2d(-41, 12), Math.toRadians(90))
+                // Move up
+                .splineToConstantHeading(new Vector2d(-41, 50), Math.toRadians(90))
+                // Move right
+                .splineToConstantHeading(new Vector2d(-45, 50), Math.toRadians(270))
+                // Move down
+                .splineToConstantHeading(new Vector2d(-45, 12), Math.toRadians(270))
+                // Move right
+                .splineToConstantHeading(new Vector2d(-51, 12), Math.toRadians(90))
+                // Move up
+                .splineToConstantHeading(new Vector2d(-50, 50), Math.toRadians(90))
+                // Move right
+                .splineToConstantHeading(new Vector2d(-55, 50), Math.toRadians(270))
+                // Move down
+                .splineToConstantHeading(new Vector2d(-53, 12), Math.toRadians(270))
+                // Move right
+                .splineToConstantHeading(new Vector2d(-60, 12), Math.toRadians(90))
+                // Move up
+                .splineToConstantHeading(new Vector2d(-60, 50), Math.toRadians(90))
+                // Move back
+                .splineToConstantHeading(new Vector2d(-55, 47), Math.toRadians(270))
+                .splineToConstantHeading(new Vector2d(-42,60), Math.toRadians(180));
         Action trajectoryActionCloseOut = tab1.endTrajectory().fresh()
-                .strafeTo(new Vector2d(48, 12))
                 .build();
+
 
         // actions that need to happen on init; for instance, a claw tightening.
         Actions.runBlocking(claw.closeClaw());
 
 
-        while (!isStopRequested() && !opModeIsActive()) {
-            int position = visionOutputPosition;
-            telemetry.addData("Position during Init", position);
-            telemetry.update();
-        }
 
         int startPosition = visionOutputPosition;
         telemetry.addData("Starting Position", startPosition);
@@ -222,21 +248,26 @@ public class SlidesAuto extends LinearOpMode {
 
         if (isStopRequested()) return;
 
-        Action trajectoryActionChosen;
-        if (startPosition == 1) {
-            trajectoryActionChosen = tab1.build();
-        } else if (startPosition == 2) {
-            trajectoryActionChosen = tab2.build();
-        } else {
-            trajectoryActionChosen = tab3.build();
-        }
+
+        mainHanging hanger = new mainHanging();
+
+
+        Lift slidePart = new Lift(hardwareMap);
+
+        ArmServo armPart = new ArmServo(hardwareMap);
+
+
+        Claw clawPart = new Claw(hardwareMap);
+
 
         Actions.runBlocking(
                 new SequentialAction(
-                        trajectoryActionChosen,
-                        lift.liftUp(),
-                        claw.openClaw(),
-                        lift.liftDown(),
+                        tab1.build(),
+                        slidePart.liftUp(),
+                        armPart.lowerArm(),
+                        slidePart.liftDown(),
+                        clawPart.openClaw(),
+                        tab2.build(),
                         trajectoryActionCloseOut
                 )
         );
