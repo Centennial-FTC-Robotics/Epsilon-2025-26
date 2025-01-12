@@ -9,6 +9,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+import org.firstinspires.ftc.teamcode.Subsystems.Slides;
 
 
 @TeleOp (name = "SampleTeleOp")
@@ -31,6 +32,7 @@ public class SampleTeleOp extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
+        Slides slides = new Slides(this.hardwareMap);
         driveBL = hardwareMap.get(DcMotorEx.class, "backLeft");
         driveBR = hardwareMap.get(DcMotorEx.class, "backRight");
         driveFL = hardwareMap.get(DcMotorEx.class, "frontLeft");
@@ -39,6 +41,7 @@ public class SampleTeleOp extends LinearOpMode {
         slideMotorR = hardwareMap.get(DcMotorEx.class, "slideMotorRight");
         slideMotorL = hardwareMap.get(DcMotorEx.class, "slideMotorLeft");
 
+//        armServo = hardwareMap.get(Servo.class, "clawServo");
         armServo = hardwareMap.get(Servo.class, "armServo"); // change in the configuration next time test
         clawServo = hardwareMap.get(Servo.class, "clawServo");
 
@@ -114,12 +117,6 @@ public class SampleTeleOp extends LinearOpMode {
             driveFL.setPower((y + x + rx) / d);
             driveFR.setPower((y - x - rx) / d);
 
-            /*
-            driveBL.setPower(backLeftPower);
-            driveBR.setPower(backRightPower);
-            driveFL.setPower(frontLeftPower);
-            driveFR.setPower(frontRightPower);*/
-
             slidePowerUp = gamepad2.right_trigger * 0.8;
 
 
@@ -130,6 +127,8 @@ public class SampleTeleOp extends LinearOpMode {
                 slidePowerDown = gamepad2.left_trigger * 0.8;
             }
             slideMotorR.setPower((slidePowerUp - slidePowerDown));
+
+
 
 
            //slideMotorR.setPower(slidePowerUp > 0 ? slidePowerUp : slidePowerDown);
@@ -145,17 +144,19 @@ public class SampleTeleOp extends LinearOpMode {
 //            }
 
             if (gamepad2.a) { // clamp values between min and max while increment or decrement
-                armPosition = Math.max(0.2, Math.min(0.772, armPosition + 0.05));
+                armPosition = Math.max(0.2, Math.min(0.772, armPosition - 0.004));
                 armServo.setPosition(armPosition);
             } else if (gamepad2.b) {
-                armPosition = Math.max(0.2, Math.min(0.772, armPosition - 0.05));
+                armPosition = Math.max(0.2, Math.min(0.772, armPosition + 0.004));
                 armServo.setPosition(armPosition);
             }
 
-            if (gamepad2.left_bumper && !isBumperPressed) {
-                isClawOpened = !isClawOpened;
-                isBumperPressed = true;
-                clawServo.setPosition(isClawOpened ? 0.45 : 0.0);
+            if (gamepad2.left_bumper) {
+                if (!isBumperPressed) {
+                    isClawOpened = !isClawOpened;
+                    isBumperPressed = true;
+                    clawServo.setPosition(isClawOpened ? 0.45 : 0.0);
+                }
             } else {
                 isBumperPressed = false;
             }
