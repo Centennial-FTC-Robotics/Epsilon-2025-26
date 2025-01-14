@@ -5,6 +5,7 @@ import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.acmerobotics.roadrunner.Action;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.SequentialAction;
+import com.acmerobotics.roadrunner.SleepAction;
 import com.acmerobotics.roadrunner.TrajectoryActionBuilder;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.acmerobotics.roadrunner.ftc.Actions;
@@ -266,6 +267,7 @@ public class SlidesAuto extends LinearOpMode {
                         slidePart.liftUp(),
                         armPart.lowerArm(),
                         slidePart.liftDown(),
+                        new SleepAction(0.5),//waits 0.5 seconds
                         clawPart.openClaw(),
                         tab2.build(),
                         trajectoryActionCloseOut
