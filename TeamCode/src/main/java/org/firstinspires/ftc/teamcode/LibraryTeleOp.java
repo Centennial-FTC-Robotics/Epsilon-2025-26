@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode;
 
 import android.widget.ToggleButton;
 
+import com.arcrobotics.ftclib.gamepad.GamepadKeys;
+import com.arcrobotics.ftclib.gamepad.ToggleButtonReader;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -12,9 +14,10 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.Subsystems.Slides;
+import com.arcrobotics.ftclib.gamepad.GamepadEx;
 
-@TeleOp (name = "SampleTeleOp")
-public class SampleTeleOp extends LinearOpMode {
+@TeleOp (name = "LibraryTeleOp")
+public class LibraryTeleOp extends LinearOpMode {
 
     private DcMotorEx driveBL;
     private DcMotorEx driveBR;
@@ -79,9 +82,20 @@ public class SampleTeleOp extends LinearOpMode {
         // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
         imu.initialize(parameters);*/
 
+        GamepadEx drivePad = new GamepadEx(gamepad1);
+
+        ToggleButtonReader bReader = new ToggleButtonReader(
+                drivePad, GamepadKeys.Button.B
+        );
+
+        ToggleButtonReader aReader = new ToggleButtonReader(
+                drivePad, GamepadKeys.Button.A
+        );
 
 
-
+        ToggleButtonReader bumperReader = new ToggleButtonReader (
+            drivePad, GamepadKeys.Button.LEFT_BUMPER
+        );
         waitForStart();
 
         double slidePowerUp = 0;
@@ -91,6 +105,33 @@ public class SampleTeleOp extends LinearOpMode {
         boolean isBumperPressed = false;
 
         while (opModeIsActive()) {
+
+            bReader.readValue();
+
+            aReader.readValue();
+
+            if (bReader.getState()) {
+
+                armPosition = Math.max(0.2, Math.min(0.772, armPosition - 0.004));
+                armServo.setPosition(armPosition);
+            } else if (bReader.getState()) {
+                armPosition = Math.max(0.2, Math.min(0.772, armPosition + 0.004));
+                armServo.setPosition(armPosition);
+
+            }
+
+
+            if (bumperReader.getState()) {
+                if (!isBumperPressed) {
+                    isClawOpened = !isClawOpened;
+                    isBumperPressed = true;
+                    clawServo.setPosition(isClawOpened ? 0.45 : 0.0);
+                }
+            }
+
+
+
+
 
 
 
@@ -141,54 +182,8 @@ public class SampleTeleOp extends LinearOpMode {
 
 
 
-            //slideMotorR.setPower(slidePowerUp > 0 ? slidePowerUp : slidePowerDown);
 
-//
-//
-//            if(gamepad2.a) {
-//                armServo.setPosition(0.772);
-//            } else if (gamepad2.b) {
-//                armServo.setPosition(0.65);
-//            } else if (gamepad2.y) {
-//                armServo.setPosition(0.2);
-//            }
-
-            if (gamepad2.a) { // clamp values between min and max while increment or decrement
-                armPosition = Math.max(0.2, Math.min(0.772, armPosition - 0.004));
-                armServo.setPosition(armPosition);
-            } else if (gamepad2.b) {
-                armPosition = Math.max(0.2, Math.min(0.772, armPosition + 0.004));
-                armServo.setPosition(armPosition);
-            }
-
-            if (gamepad2.left_bumper) {
-                if (!isBumperPressed) {
-                    isClawOpened = !isClawOpened;
-                    isBumperPressed = true;
-                    clawServo.setPosition(isClawOpened ? 0.45 : 0.0);
-                }
-            } else {
-                isBumperPressed = false;
-            }
-
-
-
-
-
-
-
-
-            /*
-            if (gamepad1.right_bumper) {
-                //closes claw
-                clawServo.setPosition(0.0);
-            } else if (gamepad1.left_bumper) {
-                //opens claw
-                clawServo.setPosition(0.45);
-            }
-            */
 
         }
     }
 }
-
