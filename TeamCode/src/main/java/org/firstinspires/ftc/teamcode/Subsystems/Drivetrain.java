@@ -1,9 +1,13 @@
 package org.firstinspires.ftc.teamcode.Subsystems;
 
+import com.acmerobotics.dashboard.FtcDashboard;
+import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+@Config
 public class Drivetrain {
     public DcMotor frontLeft;
     public DcMotor frontRight;
@@ -17,8 +21,9 @@ public class Drivetrain {
         backLeft = hMap.get(DcMotor.class, "backLeft");
         backRight = hMap.get(DcMotor.class, "backRight");
 
-        //frontRight.setDirection(DcMotor.Direction.REVERSE);
+        frontLeft.setDirection(DcMotor.Direction.REVERSE);
         backLeft.setDirection(DcMotor.Direction.REVERSE);
+
 
         frontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         frontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -66,6 +71,7 @@ public class Drivetrain {
             backRight.setTargetPosition(position);
         }
 
+        FtcDashboard dashboard = FtcDashboard.getInstance();
 
 
         frontLeft.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -73,12 +79,26 @@ public class Drivetrain {
         frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        frontLeft.setPower(0.3);
-        frontRight.setPower(0.3);
-        backLeft.setPower(0.3);
-        backRight.setPower(0.3);
+        frontLeft.setPower(0.8);
+        frontRight.setPower(0.8);
+        backLeft.setPower(0.8);
+        backRight.setPower(0.8);
 
-        while (frontLeft.isBusy() || frontRight.isBusy() || backLeft.isBusy() || backRight.isBusy()) {}
+        while (frontLeft.isBusy() || frontRight.isBusy() || backLeft.isBusy() || backRight.isBusy()) {
+            TelemetryPacket packet = new TelemetryPacket();
+            packet.put("frontLeft: ", frontLeft.getCurrentPosition());
+            packet.put("frontRight: ", frontRight.getCurrentPosition());
+            packet.put("backLeft: ", backLeft.getCurrentPosition());
+            packet.put("backRight: ", backRight.getCurrentPosition());
+            packet.put("status", "alive");
+            dashboard.sendTelemetryPacket(packet);
+        }
+
+        frontLeft.setPower(0.0);
+        frontRight.setPower(0.0);
+        backLeft.setPower(0.0);
+        backRight.setPower(0.0);
+
 
         //drive :)
     }

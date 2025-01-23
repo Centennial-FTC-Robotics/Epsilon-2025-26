@@ -37,10 +37,11 @@ public class LibraryTeleOp extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         Slides slides = new Slides(this.hardwareMap);
-        driveBL = hardwareMap.get(DcMotorEx.class, "backLeft");
-        driveBR = hardwareMap.get(DcMotorEx.class, "backRight");
         driveFL = hardwareMap.get(DcMotorEx.class, "frontLeft");
         driveFR = hardwareMap.get(DcMotorEx.class, "frontRight");
+        driveBL = hardwareMap.get(DcMotorEx.class, "backLeft");
+        driveBR = hardwareMap.get(DcMotorEx.class, "backRight");
+
 
         slideMotorR = hardwareMap.get(DcMotorEx.class, "slideMotorRight");
         slideMotorL = hardwareMap.get(DcMotorEx.class, "slideMotorLeft");
