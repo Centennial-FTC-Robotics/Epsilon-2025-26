@@ -21,20 +21,39 @@ public class encoderAuto extends LinearOpMode {
 
         drivetrain.move(24.0,"strafe");
 
-        drivetrain.move(-26.0, "drive");
+        drivetrain.move(-27.0, "drive");
 
         //hang yo shi
 
+
+
+
+
         drivetrain.move(5.0,"drive");
 
-        drivetrain.move(-36.0,"strafe");
+        drivetrain.move(-38.0,"strafe");
 
-        drivetrain.move(-40.0,"drive");
+        drivetrain.move(-25.0,"drive");
 
-        drivetrain.move(-8.0,"strafe");
+
+
+        //push blocks
+
+        drivetrain.move(-11.0,"strafe");
+
+        drivetrain.move(42.0,"drive");
+
+        drivetrain.move(-42.0,"drive");
+
+        drivetrain.move(-11.5,"strafe");
+
+        drivetrain.move(42.0,"drive");
+
+        drivetrain.move(-42.0,"drive");
+
+        drivetrain.move(-7.75,"strafe");
 
         drivetrain.move(45.0,"drive");
-
 
 
 

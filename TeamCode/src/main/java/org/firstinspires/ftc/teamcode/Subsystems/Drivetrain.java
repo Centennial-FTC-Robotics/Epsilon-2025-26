@@ -15,6 +15,8 @@ public class Drivetrain {
     public DcMotor backRight;
     private boolean slowMode = false;
 
+    public Slides slidesPart;
+
     public Drivetrain(final HardwareMap hMap) {
         frontLeft = hMap.get(DcMotor.class, "frontLeft");
         frontRight = hMap.get(DcMotor.class, "frontRight");
@@ -34,6 +36,12 @@ public class Drivetrain {
         backLeft.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+
+        //slides
+
+        Slides slidePart = new Slides(hMap);
+
 
     }
 
@@ -79,10 +87,10 @@ public class Drivetrain {
         frontRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         backRight.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        frontLeft.setPower(0.8);
-        frontRight.setPower(0.8);
-        backLeft.setPower(0.8);
-        backRight.setPower(0.8);
+        frontLeft.setPower(0.6);
+        frontRight.setPower(0.6);
+        backLeft.setPower(0.6);
+        backRight.setPower(0.6);
 
         while (frontLeft.isBusy() || frontRight.isBusy() || backLeft.isBusy() || backRight.isBusy()) {
             TelemetryPacket packet = new TelemetryPacket();
@@ -101,6 +109,15 @@ public class Drivetrain {
 
 
         //drive :)
+    }
+
+
+
+
+    public void hangSpecimen() {
+
+        slidesPart.incrementSlidePos(5);
+
     }
 
 
