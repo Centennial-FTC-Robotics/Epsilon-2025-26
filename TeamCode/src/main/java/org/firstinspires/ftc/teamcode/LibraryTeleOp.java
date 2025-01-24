@@ -83,7 +83,7 @@ public class LibraryTeleOp extends LinearOpMode {
         // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
         imu.initialize(parameters);*/
 
-        GamepadEx drivePad = new GamepadEx(gamepad1);
+        GamepadEx drivePad = new GamepadEx(gamepad2);
 
         ToggleButtonReader bReader = new ToggleButtonReader(
                 drivePad, GamepadKeys.Button.B
@@ -111,7 +111,7 @@ public class LibraryTeleOp extends LinearOpMode {
 
             aReader.readValue();
 
-            if (bReader.getState()) {
+            if (aReader.getState()) {
 
                 armPosition = Math.max(0.2, Math.min(0.772, armPosition - 0.004));
                 armServo.setPosition(armPosition);
@@ -128,6 +128,8 @@ public class LibraryTeleOp extends LinearOpMode {
                     isBumperPressed = true;
                     clawServo.setPosition(isClawOpened ? 0.45 : 0.0);
                 }
+            } else {
+                isBumperPressed = false;
             }
 
 

@@ -17,7 +17,7 @@ public class encoderAuto extends LinearOpMode {
 
         waitForStart();
 
-
+        drivetrain.autoInit();
 
         drivetrain.move(24.0,"strafe");
 

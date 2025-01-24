@@ -18,21 +18,22 @@ public class encoderSampleAuto extends LinearOpMode {
         waitForStart();
 
 
-        drivetrain.move(24.0,"strafe");
-
-        drivetrain.move(-24.0,"drive");
-
-        drivetrain.move(10.0,"rotate");
-
-        drivetrain.move(15.0,"drive");
-
-        //place in
-
-        drivetrain.move(-10.0,"rotate");
-
-        drivetrain.move(48.0,"drive");
-
-        drivetrain.move(-24.0,"strafe");
+        drivetrain.move(10.0, "rotate");
+//        drivetrain.move(24.0,"strafe");
+//
+//        drivetrain.move(-24.0,"drive");
+//
+//        drivetrain.move(10.0,"rotate");
+//
+//        drivetrain.move(12.0,"drive");
+//
+//        //place in
+//
+//        drivetrain.move(-10.0,"rotate");
+//
+//        drivetrain.move(48.0,"drive");
+//
+//        drivetrain.move(-24.0,"strafe");
 
 
 

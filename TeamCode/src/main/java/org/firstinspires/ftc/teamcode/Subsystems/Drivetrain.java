@@ -16,6 +16,8 @@ public class Drivetrain {
     private boolean slowMode = false;
 
     public Slides slidesPart;
+    public Arm armPart;
+    public Claw clawPart;
 
     public Drivetrain(final HardwareMap hMap) {
         frontLeft = hMap.get(DcMotor.class, "frontLeft");
@@ -41,7 +43,8 @@ public class Drivetrain {
         //slides
 
         Slides slidePart = new Slides(hMap);
-
+        Arm armPart = new Arm(hMap);
+        Claw clawPart = new Claw(hMap);
 
     }
 
@@ -112,13 +115,25 @@ public class Drivetrain {
     }
 
 
+    public void autoInit() {
+        clawPart.close();
+    }
 
 
     public void hangSpecimen() {
 
         slidesPart.incrementSlidePos(5);
+        armPart.move(0.61);
+        slidesPart.incrementSlidePos(-1);
+        clawPart.open();
 
     }
 
-
+    public void dropSample() {
+        slidesPart.incrementSlidePos(10);
+        armPart.move(0.30);
+        slidesPart.incrementSlidePos(-2);
+        clawPart.open();
+        armPart.move(0.0);
+    }
 }
