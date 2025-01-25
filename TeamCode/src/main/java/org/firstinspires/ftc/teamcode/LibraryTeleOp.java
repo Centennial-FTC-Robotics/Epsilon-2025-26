@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
@@ -139,12 +140,12 @@ public class LibraryTeleOp extends LinearOpMode {
             triggerReaderLeft.readValue();
 
             if (clawPad.getButton(GamepadKeys.Button.A)) {
-                armPosition += 0.005;
+                armPosition += 0.002;
                 armPosition = Range.clip(armPosition, 0.38, 0.91);
                 armServo.setPosition(armPosition);
                 armServo2.setPosition(Math.abs(1-armPosition));
             } else if (clawPad.getButton(GamepadKeys.Button.B)) {
-                armPosition -= 0.005;
+                armPosition -= 0.002;
                 armPosition = Range.clip(armPosition, 0.38, 0.91);
                 armServo.setPosition(armPosition);
                 armServo2.setPosition(Math.abs(1-armPosition));
@@ -178,6 +179,7 @@ public class LibraryTeleOp extends LinearOpMode {
             double x = gamepad1.left_stick_x;
             double rx = gamepad1.right_stick_x;
             double d = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+            double f = gamepad1.left_bumper ? 0.5 : 1;
 
             /*
             if (gamepad1.options) {
@@ -200,10 +202,10 @@ public class LibraryTeleOp extends LinearOpMode {
             double frontRightPower = (rotY - rotX - rx) / denominator;
             double backRightPower = (rotY + rotX - rx) / denominator;*/
 
-            driveBL.setPower((y - x + rx) / d);
-            driveBR.setPower((y + x - rx) / d);
-            driveFL.setPower((y + x + rx) / d);
-            driveFR.setPower((y - x - rx) / d);
+            driveBL.setPower((y - x + rx) / d * f);
+            driveBR.setPower((y + x - rx) / d * f);
+            driveFL.setPower(((y + x + rx) / d * f) * -1.0);
+            driveFR.setPower((y - x - rx) / d * f);
 
 
             slidePowerUp = gamepad1.right_trigger * 0.5;
