@@ -20,7 +20,7 @@ public class SampleTeleOp extends LinearOpMode {
     private DcMotorEx driveBR;
     private DcMotorEx driveFL;
     private DcMotorEx driveFR;
-    private DcMotorEx slideMotorR;
+    //private DcMotorEx slideMotorR;
     private DcMotorEx slideMotorL;
 
     private Servo armServo;
@@ -33,13 +33,13 @@ public class SampleTeleOp extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        Slides slides = new Slides(this.hardwareMap);
+        Slides slides = new Slides(this);
         driveBL = hardwareMap.get(DcMotorEx.class, "backLeft");
         driveBR = hardwareMap.get(DcMotorEx.class, "backRight");
         driveFL = hardwareMap.get(DcMotorEx.class, "frontLeft");
         driveFR = hardwareMap.get(DcMotorEx.class, "frontRight");
 
-        slideMotorR = hardwareMap.get(DcMotorEx.class, "slideMotorRight");
+      //  slideMotorR = hardwareMap.get(DcMotorEx.class, "slideMotorRight");
         slideMotorL = hardwareMap.get(DcMotorEx.class, "slideMotorLeft");
 
 //        armServo = hardwareMap.get(Servo.class, "clawServo");
@@ -51,7 +51,7 @@ public class SampleTeleOp extends LinearOpMode {
         driveFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         driveFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        slideMotorR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+      //  slideMotorR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         slideMotorL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         driveBL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -59,7 +59,7 @@ public class SampleTeleOp extends LinearOpMode {
         driveFL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         driveFR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        slideMotorR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+       // slideMotorR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slideMotorL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         slideMotorL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -136,7 +136,7 @@ public class SampleTeleOp extends LinearOpMode {
             } else {
                 slidePowerDown = gamepad2.left_trigger * 0.8;
             }
-            slideMotorR.setPower((slidePowerUp - slidePowerDown));
+            slideMotorL.setPower((slidePowerUp - slidePowerDown));
 
 
 

@@ -26,7 +26,7 @@ public class SampleAuto extends LinearOpMode {
         slideMotorR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         slideMotorL.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        Drivetrain drivetrain = new Drivetrain(hardwareMap);
+        Drivetrain drivetrain = new Drivetrain(this);
 
         waitForStart();
         drivetrain.move(24.0,"strafe");

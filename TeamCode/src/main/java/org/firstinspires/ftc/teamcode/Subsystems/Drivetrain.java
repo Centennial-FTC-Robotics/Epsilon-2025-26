@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.Subsystems;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.TelemetryPacket;
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -15,15 +16,15 @@ public class Drivetrain {
     public DcMotor backRight;
     private boolean slowMode = false;
 
-    public Slides slidesPart;
-    public Arm armPart;
     public Claw clawPart;
+    public Arm armPart;
+    //public Slides slidesPart;
 
-    public Drivetrain(final HardwareMap hMap) {
-        frontLeft = hMap.get(DcMotor.class, "frontLeft");
-        frontRight = hMap.get(DcMotor.class, "frontRight");
-        backLeft = hMap.get(DcMotor.class, "backLeft");
-        backRight = hMap.get(DcMotor.class, "backRight");
+    public Drivetrain(LinearOpMode opmode) {
+        frontLeft = opmode.hardwareMap.get(DcMotor.class, "frontLeft");
+        frontRight = opmode.hardwareMap.get(DcMotor.class, "frontRight");
+        backLeft = opmode.hardwareMap.get(DcMotor.class, "backLeft");
+        backRight = opmode.hardwareMap.get(DcMotor.class, "backRight");
 
         frontLeft.setDirection(DcMotor.Direction.REVERSE);
         backLeft.setDirection(DcMotor.Direction.REVERSE);
@@ -39,12 +40,9 @@ public class Drivetrain {
         frontRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         backRight.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-
-        //slides
-
-        Slides slidePart = new Slides(hMap);
-        Arm armPart = new Arm(hMap);
-        Claw clawPart = new Claw(hMap);
+        clawPart = new Claw(opmode);
+        armPart = new Arm(opmode);
+      //  slidesPart = new Slides(opmode);
 
     }
 
@@ -117,23 +115,32 @@ public class Drivetrain {
 
     public void autoInit() {
         clawPart.close();
+        armPart.move(0.6);
     }
 
 
     public void hangSpecimen() {
 
-        slidesPart.incrementSlidePos(5);
-        armPart.move(0.61);
-        slidesPart.incrementSlidePos(-1);
+      //  slidesPart.incrementSlidePos(10);
+        armPart.move(0.68);
+        this.move(1.0,"drive");
         clawPart.open();
 
+       // slidesPart.retractSlides();
+
     }
+
+    /*
+
+    public void level1Hang() {
+        slidesPart.incrementSlidePos(5);
+    }
+
 
     public void dropSample() {
-        slidesPart.incrementSlidePos(10);
-        armPart.move(0.30);
-        slidesPart.incrementSlidePos(-2);
+       // slidesPart.incrementSlidePos(10);
+        armPart.move(0.7);
         clawPart.open();
         armPart.move(0.0);
-    }
+    }*/
 }

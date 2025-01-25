@@ -22,7 +22,7 @@ public class ParkingAuto extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        Drivetrain drivetrain = new Drivetrain(hardwareMap);
+        Drivetrain drivetrain = new Drivetrain(this);
 
         waitForStart();
 

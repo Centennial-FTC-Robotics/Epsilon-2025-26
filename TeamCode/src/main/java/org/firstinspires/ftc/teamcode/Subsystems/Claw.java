@@ -1,21 +1,80 @@
 package org.firstinspires.ftc.teamcode.Subsystems;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 
 public class Claw {
-    private Servo claw;
+    public Servo clawServo;
 
-    public Claw(HardwareMap hardwareMap) {
-        claw = hardwareMap.get(Servo.class, "claw");
+    public Claw(LinearOpMode opmode) {
+
+        clawServo = opmode.hardwareMap.get(Servo.class, "clawServo");
     }
 
     public void open() {
-        claw.setPosition(0.45);
+        clawServo.setPosition(0.7);
     }
 
     public void close() {
-        claw.setPosition(0.0);
+        clawServo.setPosition(0.51);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

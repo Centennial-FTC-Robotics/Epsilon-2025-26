@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.Subsystems;
 
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
@@ -31,14 +32,14 @@ public class Slides {
     private DcMotorEx slideMotorR;
     private DcMotorEx slideMotorL;
 
-    public Slides(final HardwareMap hMap) {
-        slideMotorR = hMap.get(DcMotorEx.class, "slideMotorRight");
-        slideMotorL = hMap.get(DcMotorEx.class, "slideMotorLeft");
+    public Slides(LinearOpMode opmode) {
+        //slideMotorR = opmode.hardwareMap.get(DcMotorEx.class, "slideMotorRight");
+        slideMotorL = opmode.hardwareMap.get(DcMotorEx.class, "slideMotorLeft");
 
-        slideMotorR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //slideMotorR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slideMotorL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        slideMotorR.setDirection(DcMotorSimple.Direction.FORWARD);
+        //slideMotorR.setDirection(DcMotorSimple.Direction.FORWARD);
         slideMotorL.setDirection(DcMotorSimple.Direction.FORWARD);
     }
 
@@ -74,7 +75,7 @@ public class Slides {
         }
 
 
-        pos = -slideMotorR.getCurrentPosition();
+        pos = -slideMotorL.getCurrentPosition();
         double error = slidesTarget - pos;
 
         double speed = (double)(error-lastError)/(double)(t-lastTime);
@@ -96,7 +97,7 @@ public class Slides {
 
 
         slideMotorL.setPower(power);
-        slideMotorR.setPower(power);
+
 
         lastTime = t;
     }
