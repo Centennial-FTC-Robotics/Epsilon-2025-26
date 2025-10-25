@@ -3,6 +3,7 @@ package com.example.meepmeeptesting;
 import com.acmerobotics.roadrunner.Pose2d;
 import com.acmerobotics.roadrunner.Vector2d;
 import com.noahbres.meepmeep.MeepMeep;
+import com.noahbres.meepmeep.core.colorscheme.scheme.*;
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
 
@@ -13,63 +14,89 @@ public class MeepMeepTesting {
         MeepMeep meepMeep = new MeepMeep(800);
 
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
-                // Set bot constraints: maxVel, maxAccel, maxAngVel, maxAngAccel, track width
+                .setColorScheme(new ColorSchemeRedDark())
                 .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 18)
                 .build();
 
         double t = 23.5;
 
-        // (NEW) 3 Specimen Auto
-        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(t*-0.5, t*2.5, Math.toRadians(270)))
-                .waitSeconds(3)
-                .splineToConstantHeading(new Vector2d(-9.73, 35.77), Math.toRadians(270))
-                .waitSeconds(3.0)
 
+
+        /*
+        AUTO PLAN A:
+            - Start from bottom area
+            * Scan for motif april tag
+            ^ Move to top shooting area
+            - Position for april tag
+            - Shoot three balls
+                * Shoot in order of motif
+            - Move back
+            - Move to last set of balls
+            - Collect balls
+            - Repeat shooting process
+
+        AUTO PLAN B:
+            - Start from top area
+            - No auto
+         */
+
+        // (NEW) 3 Specimen Auto
+        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(t * 2.5, t * 0.5, Math.toRadians(180)))
+            .waitSeconds(3.0)
+            .splineToConstantHeading(new Vector2d(t * -2, t * 0.5), Math.toRadians(180))
+            .turnTo(Math.toRadians(115))
+            .waitSeconds(3.0) // shooting
+            .splineToLinearHeading(new Pose2d(t * -0.5, t * 1.5, Math.toRadians(90)), Math.toRadians(90))
+            .splineToConstantHeading(new Vector2d(t * -0.5, t * 2.25), Math.toRadians(90))
+            .waitSeconds(2.0)
+            .lineToYLinearHeading(t * 2, Math.toRadians(90))
+            .lineToYLinearHeading(t * 1.5, Math.toRadians(270))
+            .splineToLinearHeading(new Pose2d(t * -2, t * 0.5, Math.toRadians(115)), Math.toRadians(180))
+            .waitSeconds(2.0)
+            .splineToLinearHeading(new Pose2d(t * 2.5, t * 0.5, Math.toRadians(180)), Math.toRadians(0))
                 //perform preloaded specimen hang
 
 
 
 
-                .setTangent(Math.toRadians(180))
+//                .setTangent(Math.toRadians(180))
+//
+//                // Move to side
+//                .splineToConstantHeading(new Vector2d(-35, 36.16), Math.toRadians(270))
+//
+//
+//
+//                // Move down
+//                .splineToConstantHeading(new Vector2d(-35, 12), Math.toRadians(270))
+//
+//
+//
+//                // Move right
+//                .splineToConstantHeading(new Vector2d(-41, 12), Math.toRadians(90))
+//                // Move up
+//                .splineToConstantHeading(new Vector2d(-41, 50), Math.toRadians(90))
+//                // Move right
+//                .splineToConstantHeading(new Vector2d(-45, 50), Math.toRadians(270))
+//                // Move down
+//                .splineToConstantHeading(new Vector2d(-45, 12), Math.toRadians(270))
+//                // Move right
+//                .splineToConstantHeading(new Vector2d(-51, 12), Math.toRadians(90))
+//                // Move up
+//                .splineToConstantHeading(new Vector2d(-50, 50), Math.toRadians(90))
+//                // Move right
+//                .splineToConstantHeading(new Vector2d(-55, 50), Math.toRadians(270))
+//                // Move down
+//                .splineToConstantHeading(new Vector2d(-53, 12), Math.toRadians(270))
+//                // Move right
+//                .splineToConstantHeading(new Vector2d(-60, 12), Math.toRadians(90))
+//                // Move up
+//                .splineToConstantHeading(new Vector2d(-60, 50), Math.toRadians(90))
+//                // Move back
+//                .splineToConstantHeading(new Vector2d(-55, 47), Math.toRadians(270))
+//
+//
+//                .splineToConstantHeading(new Vector2d(-42,60), Math.toRadians(180))
 
-                // Move to side
-                .splineToConstantHeading(new Vector2d(-35, 36.16), Math.toRadians(270))
-
-
-
-                // Move down
-                .splineToConstantHeading(new Vector2d(-35, 12), Math.toRadians(270))
-
-
-
-                // Move right
-                .splineToConstantHeading(new Vector2d(-41, 12), Math.toRadians(90))
-                // Move up
-                .splineToConstantHeading(new Vector2d(-41, 50), Math.toRadians(90))
-                // Move right
-                .splineToConstantHeading(new Vector2d(-45, 50), Math.toRadians(270))
-                // Move down
-                .splineToConstantHeading(new Vector2d(-45, 12), Math.toRadians(270))
-                // Move right
-                .splineToConstantHeading(new Vector2d(-51, 12), Math.toRadians(90))
-                // Move up
-                .splineToConstantHeading(new Vector2d(-50, 50), Math.toRadians(90))
-                // Move right
-                .splineToConstantHeading(new Vector2d(-55, 50), Math.toRadians(270))
-                // Move down
-                .splineToConstantHeading(new Vector2d(-53, 12), Math.toRadians(270))
-                // Move right
-                .splineToConstantHeading(new Vector2d(-60, 12), Math.toRadians(90))
-                // Move up
-                .splineToConstantHeading(new Vector2d(-60, 50), Math.toRadians(90))
-                // Move back
-                .splineToConstantHeading(new Vector2d(-55, 47), Math.toRadians(270))
-
-
-                .splineToConstantHeading(new Vector2d(-42,60), Math.toRadians(180))
-
-
-                .waitSeconds(5.0)
 
 
 
@@ -192,7 +219,7 @@ public class MeepMeepTesting {
                 .strafeTo(new Vector2d(t * -2.0, t * 2.5))
                 .build());
 */
-        meepMeep.setBackground(MeepMeep.Background.FIELD_INTO_THE_DEEP_OFFICIAL)
+        meepMeep.setBackground(MeepMeep.Background.FIELD_DECODE_OFFICIAL)
                 .setDarkMode(true)
                 .setBackgroundAlpha(0.95f)
                 .addEntity(myBot)
