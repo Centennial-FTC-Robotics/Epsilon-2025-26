@@ -1,194 +1,257 @@
 package org.firstinspires.ftc.teamcode;
 
-
-import android.widget.ToggleButton;
-
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
-import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.teamcode.Subsystems.Slides;
 
-@TeleOp (name = "SampleTeleOp")
+@TeleOp(name = "SampleTeleOp")
 public class SampleTeleOp extends LinearOpMode {
 
     private DcMotorEx driveBL;
     private DcMotorEx driveBR;
     private DcMotorEx driveFL;
     private DcMotorEx driveFR;
-    //private DcMotorEx slideMotorR;
-    private DcMotorEx slideMotorL;
 
-    private Servo armServo;
+    private DcMotorEx turretXZ;
+    private DcMotorEx turretYZ;
 
-    private Servo clawServo;
+    private DcMotorEx shooterMotor;
+    private DcMotorEx intakeMotor;
 
-    //private boolean clawCurrentlyClosed = true;
-
+    private IMU imu;
 
     @Override
     public void runOpMode() throws InterruptedException {
 
-        Slides slides = new Slides(this);
         driveBL = hardwareMap.get(DcMotorEx.class, "backLeft");
         driveBR = hardwareMap.get(DcMotorEx.class, "backRight");
         driveFL = hardwareMap.get(DcMotorEx.class, "frontLeft");
         driveFR = hardwareMap.get(DcMotorEx.class, "frontRight");
 
-      //  slideMotorR = hardwareMap.get(DcMotorEx.class, "slideMotorRight");
-        slideMotorL = hardwareMap.get(DcMotorEx.class, "slideMotorLeft");
+        turretXZ = hardwareMap.get(DcMotorEx.class, "turretXZ");
+        turretYZ = hardwareMap.get(DcMotorEx.class, "turretYZ");
 
-//        armServo = hardwareMap.get(Servo.class, "clawServo");
-        armServo = hardwareMap.get(Servo.class, "armServo"); // change in the configuration next time test
-        clawServo = hardwareMap.get(Servo.class, "clawServo");
+        shooterMotor = hardwareMap.get(DcMotorEx.class, "shooter");
+        intakeMotor = hardwareMap.get(DcMotorEx.class, "intake");
+        imu = hardwareMap.get(IMU.class, "imu");
 
         driveBL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         driveBR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         driveFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         driveFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-      //  slideMotorR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        slideMotorL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        turretXZ.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        turretYZ.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+        shooterMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         driveBL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         driveBR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         driveFL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         driveFR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-       // slideMotorR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        slideMotorL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        turretXZ.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        turretYZ.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        slideMotorL.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        shooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        // SWAP THESE IF NEEDED
-        driveBL.setDirection(DcMotorEx.Direction.REVERSE);
-        //driveBR.setDirection(DcMotorEx.Direction.REVERSE); leave commented
-        //driveFL.setDirection(DcMotorEx.Direction.REVERSE); leave commented
-        //driveFR.setDirection(DcMotorEx.Direction.REVERSE); leave commented
+        driveBL.setDirection(DcMotorEx.Direction.REVERSE); // flip
 
-        /*
-         IMU imu = hardwareMap.get(IMU.class, "imu");
-        // Adjust the orientation parameters to match your robot
-        IMU.Parameters parameters = new IMU.Parameters(new RevHubOrientationOnRobot(
-                RevHubOrientationOnRobot.LogoFacingDirection.UP,
-                RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
-        // Without this, the REV Hub's orientation is assumed to be logo up / USB forward
-        imu.initialize(parameters);*/
-
-
-
+        // make sure it is in position so it can be calculated correctlyf
+        IMU.Parameters parameters = new IMU.Parameters(
+                new RevHubOrientationOnRobot(
+                        RevHubOrientationOnRobot.LogoFacingDirection.UP,
+                        RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
+        imu.initialize(parameters);
 
         waitForStart();
 
-        double slidePowerUp = 0;
-        double slidePowerDown = 0;
-        double armPosition = 0;
-        boolean isClawOpened = false;
-        boolean isBumperPressed = false;
+        final double TURRET_POWER = 0.5;
+        final double TURRET_SLOW_POWER = 0.25;
+        final double INTAKE_POWER = 1.0;
+        final double INTAKE_SLOW_POWER = 0.5;
+        final double MAX_ROTATION_POWER = 0.8;
+        final double ROTATION_KP = 2.0;
+        final double STICK_DEADZONE = 0.1; // stick drift
+
+        final double DRIVE_MAX = 1.0;
+        final double DRIVE_SLOW_FACTOR = 0.5;
+
+        final double SHOOTER_POWER = 1.0;
+        final long SINGLE_SHOOT_TIME_MS = 500;
+        final long INTER_SHOT_PAUSE_MS = 1000;
+        final int MULTI_SHOT_COUNT = 3;
+
+        boolean aPrev = false;
+        boolean xPrev = false;
+
+        boolean isShootingSingle = false;
+        long singleShootStartMs = 0;
+
+        boolean isShootingMulti = false;
+        int multiShotsFired = 0;
+        boolean multiPhaseShooting = false;
+        long multiPhaseStartMs = 0;
 
         while (opModeIsActive()) {
+            double ly = -gamepad1.left_stick_y;
+            double lx = gamepad1.left_stick_x;
 
-
-
-
-
-            double y = -gamepad1.left_stick_y;
-            double x = gamepad1.left_stick_x;
             double rx = gamepad1.right_stick_x;
-            double d = Math.max(Math.abs(y) + Math.abs(x) + Math.abs(rx), 1);
+            double ry = -gamepad1.right_stick_y;
+            double rMag = Math.hypot(rx, ry);
 
-            /*
-            if (gamepad1.options) {
-                imu.resetYaw();
-            }*/
+            boolean slowMode = gamepad1.y;
+            double driveScale = slowMode ? DRIVE_SLOW_FACTOR : 1.0;
 
-            //double botHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+            double rotationPower = 0.0;
+            if (rMag > STICK_DEADZONE) {
+                double desiredHeading = Math.atan2(rx, ry);
+                double currentHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
 
-            /*double rotX = x * Math.cos(-botHeading) - y * Math.sin(-botHeading);
-            double rotY = x * Math.sin(-botHeading) + y * Math.cos(-botHeading);
+                double error = desiredHeading - currentHeading;
+                while (error > Math.PI) error -= 2.0 * Math.PI;
+                while (error < -Math.PI) error += 2.0 * Math.PI;
 
-            rotX = rotX * 1.1;  // Counteract imperfect strafing
+                rotationPower = ROTATION_KP * error;
+                if (rotationPower > MAX_ROTATION_POWER) rotationPower = MAX_ROTATION_POWER;
+                if (rotationPower < -MAX_ROTATION_POWER) rotationPower = -MAX_ROTATION_POWER;
 
-            // Denominator is the largest motor power (absolute value) or 1
-            // This ensures all the powers maintain the same ratio,
-            // but only if at least one is out of the range [-1, 1]
-            double denominator = Math.max(Math.abs(rotY) + Math.abs(rotX) + Math.abs(rx), 1);
-            double frontLeftPower = (rotY + rotX + rx) / denominator;
-            double backLeftPower = (rotY - rotX + rx) / denominator;
-            double frontRightPower = (rotY - rotX - rx) / denominator;
-            double backRightPower = (rotY + rotX - rx) / denominator;*/
-
-            driveBL.setPower((y - x + rx) / d);
-            driveBR.setPower((y + x - rx) / d);
-            driveFL.setPower((y + x + rx) / d);
-            driveFR.setPower((y - x - rx) / d);
-
-            slidePowerUp = gamepad2.right_trigger * 0.8;
-
-
-            if (slideMotorL.getCurrentPosition() <= 10) {
-                //slidePowerDown = -gamepad1.left_trigger * 0.8;
-                slidePowerDown = 0;
+                if (slowMode) rotationPower *= DRIVE_SLOW_FACTOR;
             } else {
-                slidePowerDown = gamepad2.left_trigger * 0.8;
-            }
-            slideMotorL.setPower((slidePowerUp - slidePowerDown));
-
-
-
-
-            //slideMotorR.setPower(slidePowerUp > 0 ? slidePowerUp : slidePowerDown);
-
-//
-//
-//            if(gamepad2.a) {
-//                armServo.setPosition(0.772);
-//            } else if (gamepad2.b) {
-//                armServo.setPosition(0.65);
-//            } else if (gamepad2.y) {
-//                armServo.setPosition(0.2);
-//            }
-
-            if (gamepad2.a) { // clamp values between min and max while increment or decrement
-                armPosition = Math.max(0.2, Math.min(0.772, armPosition - 0.004));
-                armServo.setPosition(armPosition);
-            } else if (gamepad2.b) {
-                armPosition = Math.max(0.2, Math.min(0.772, armPosition + 0.004));
-                armServo.setPosition(armPosition);
+                rotationPower = 0.0;
             }
 
-            if (gamepad2.left_bumper) {
-                if (!isBumperPressed) {
-                    isClawOpened = !isClawOpened;
-                    isBumperPressed = true;
-                    clawServo.setPosition(isClawOpened ? 0.45 : 0.0);
+            double denom = Math.max(Math.abs(ly) + Math.abs(lx) + Math.abs(rotationPower), 1.0);
+            double fl = (ly + lx + rotationPower) / denom;
+            double bl = (ly - lx + rotationPower) / denom;
+            double fr = (ly - lx - rotationPower) / denom;
+            double br = (ly + lx - rotationPower) / denom;
+
+            fl *= driveScale;
+            bl *= driveScale;
+            fr *= driveScale;
+            br *= driveScale;
+
+            driveFL.setPower(rangeClip(fl, -DRIVE_MAX, DRIVE_MAX));
+            driveBL.setPower(rangeClip(bl, -DRIVE_MAX, DRIVE_MAX));
+            driveFR.setPower(rangeClip(fr, -DRIVE_MAX, DRIVE_MAX));
+            driveBR.setPower(rangeClip(br, -DRIVE_MAX, DRIVE_MAX));
+
+            double turretCmdXZ = 0.0;
+            double turretCmdYZ = 0.0;
+            double intakeCmd = 0.0;
+
+            if (gamepad1.dpad_left) {
+                turretCmdXZ = -TURRET_POWER;
+            } else if (gamepad1.dpad_right) {
+                turretCmdXZ = TURRET_POWER;
+            }
+
+            if (gamepad1.dpad_up) {
+                turretCmdYZ = TURRET_POWER;
+            } else if (gamepad1.dpad_down) {
+                turretCmdYZ = -TURRET_POWER;
+            }
+
+            if (gamepad1.b) {
+                intakeCmd = INTAKE_POWER;
+            }
+
+            if (slowMode) {
+                turretCmdXZ *= (TURRET_SLOW_POWER / TURRET_POWER);
+                turretCmdYZ *= (TURRET_SLOW_POWER / TURRET_POWER);
+                intakeCmd *= (INTAKE_SLOW_POWER / INTAKE_POWER);
+            }
+
+            turretXZ.setPower(turretCmdXZ);
+            turretYZ.setPower(turretCmdYZ);
+            intakeMotor.setPower(intakeCmd);
+
+            long now = System.currentTimeMillis();
+
+            if (gamepad1.a && !aPrev) {
+                if (!isShootingSingle && !isShootingMulti) {
+                    isShootingSingle = true;
+                    singleShootStartMs = now;
+                    shooterMotor.setPower(SHOOTER_POWER);
                 }
-            } else {
-                isBumperPressed = false;
+            }
+            aPrev = gamepad1.a;
+
+            if (gamepad1.x && !xPrev) {
+                if (!isShootingMulti) {
+                    isShootingMulti = true;
+                    multiShotsFired = 0;
+                    multiPhaseShooting = true;
+                    multiPhaseStartMs = now;
+                    shooterMotor.setPower(SHOOTER_POWER);
+                } else {
+                    isShootingMulti = false;
+                    multiShotsFired = 0;
+                    multiPhaseShooting = false;
+                    shooterMotor.setPower(0.0);
+                }
+            }
+            xPrev = gamepad1.x;
+
+            if (isShootingSingle) {
+                if (now - singleShootStartMs >= SINGLE_SHOOT_TIME_MS) {
+                    shooterMotor.setPower(0.0);
+                    isShootingSingle = false;
+                }
             }
 
-
-
-
-
-
-
-
-            /*
-            if (gamepad1.right_bumper) {
-                //closes claw
-                clawServo.setPosition(0.0);
-            } else if (gamepad1.left_bumper) {
-                //opens claw
-                clawServo.setPosition(0.45);
+            if (isShootingMulti) {
+                if (multiPhaseShooting) {
+                    if (now - multiPhaseStartMs >= SINGLE_SHOOT_TIME_MS) {
+                        shooterMotor.setPower(0.0);
+                        multiPhaseShooting = false;
+                        multiPhaseStartMs = now;
+                        multiShotsFired++;
+                    }
+                } else {
+                    if (now - multiPhaseStartMs >= INTER_SHOT_PAUSE_MS) {
+                        if (multiShotsFired >= MULTI_SHOT_COUNT) {
+                            isShootingMulti = false;
+                            multiShotsFired = 0;
+                            multiPhaseShooting = false;
+                            shooterMotor.setPower(0.0);
+                        } else {
+                            shooterMotor.setPower(SHOOTER_POWER);
+                            multiPhaseShooting = true;
+                            multiPhaseStartMs = now;
+                        }
+                    }
+                }
             }
-            */
 
+            if (!isShootingSingle && !isShootingMulti) {
+                shooterMotor.setPower(0.0);
+            }
+
+            telemetry.addData("Drive (L stick)", "x=%.2f y=%.2f", lx, ly);
+            telemetry.addData("Right stick mag", "%.2f", rMag);
+            telemetry.addData("Rotation Power", "%.3f", rotationPower);
+            telemetry.addData("Turret XZ", "%.2f", turretCmdXZ);
+            telemetry.addData("Turret YZ", "%.2f", turretCmdYZ);
+            telemetry.addData("Intake Power", "%.2f", intakeCmd);
+            telemetry.addData("Shooting Single", isShootingSingle);
+            telemetry.addData("Shooting Multi", isShootingMulti);
+            telemetry.addData("Multi Fired", multiShotsFired);
+            telemetry.update();
+
+            idle();
         }
     }
-}
 
+    private double rangeClip(double val, double min, double max) {
+        return Math.max(min, Math.min(max, val));
+    }
+}
