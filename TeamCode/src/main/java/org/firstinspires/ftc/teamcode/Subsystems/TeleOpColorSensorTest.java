@@ -1,8 +1,8 @@
- package org.firstinspires.ftc.teamcode.opmodes;
+ package org.firstinspires.ftc.teamcode.Subsystems;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import org.firstinspires.ftc.teamcode.subsystems.ColorSensorSubsystem;
+import org.firstinspires.ftc.teamcode.Subsystems.ColorSensorSubsystem;
 
 @TeleOp(name="Decode Color Sensor Test")
 public class TeleOpColorSensorTest extends LinearOpMode {

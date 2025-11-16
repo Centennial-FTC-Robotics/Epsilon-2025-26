@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.subsystems;
+package org.firstinspires.ftc.teamcode.Subsystems;
 
 import android.graphics.Color;
 import com.qualcomm.robotcore.hardware.ColorSensor;
@@ -12,14 +12,14 @@ public class ColorSensorSubsystem {
 
     private final ColorSensor colorSensor;
 
-    // Hue ranges (tune these values on field!)
+    // TUNE THESE
     private static final float GREEN_HUE_MIN = 90f;
     private static final float GREEN_HUE_MAX = 160f;
 
     private static final float PURPLE_HUE_MIN = 250f;
     private static final float PURPLE_HUE_MAX = 300f;
 
-    // Alpha threshold to confirm object presence
+    // Alpha checks for if ball exists
     private static final int DETECTION_THRESHOLD = 150;
 
     public enum DetectedColor {
@@ -30,20 +30,25 @@ public class ColorSensorSubsystem {
         this.colorSensor = hardwareMap.get(ColorSensor.class, sensorName);
     }
 
-    /** Return raw RGB values */
-    public int getRed()   { return colorSensor.red(); }
-    public int getGreen() { return colorSensor.green(); }
-    public int getBlue()  { return colorSensor.blue(); }
-    public int getAlpha() { return colorSensor.alpha(); }
+    public int getRed() {
+        return colorSensor.red();
+    }
+    public int getGreen() {
+        return colorSensor.green();
+    }
+    public int getBlue() {
+        return colorSensor.blue();
+    }
+    public int getAlpha() {
+        return colorSensor.alpha();
+    }
 
-    /** Convert raw RGB to HSV */
     private float[] getHSV() {
         float[] hsv = new float[3];
         Color.RGBToHSV(getRed(), getGreen(), getBlue(), hsv);
         return hsv;
     }
 
-    /** Is an artifact present (based on brightness/alpha)? */
     public boolean isObjectDetected() {
         return getAlpha() > DETECTION_THRESHOLD;
     }
