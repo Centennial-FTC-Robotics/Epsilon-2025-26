@@ -16,11 +16,11 @@ public class SampleTeleOp extends LinearOpMode {
     private DcMotorEx driveFL;
     private DcMotorEx driveFR;
 
-    private DcMotorEx turretXZ;
-    private DcMotorEx turretYZ;
+//    private DcMotorEx turretXZ;
+//    private DcMotorEx turretYZ;
 
-    private DcMotorEx shooterMotor;
-    private DcMotorEx intakeMotor;
+//    private DcMotorEx shooterMotor;
+//    private DcMotorEx intakeMotor;
 
     private IMU imu;
 
@@ -32,43 +32,58 @@ public class SampleTeleOp extends LinearOpMode {
         driveFL = hardwareMap.get(DcMotorEx.class, "frontLeft");
         driveFR = hardwareMap.get(DcMotorEx.class, "frontRight");
 
-        turretXZ = hardwareMap.get(DcMotorEx.class, "turretXZ");
-        turretYZ = hardwareMap.get(DcMotorEx.class, "turretYZ");
+//        turretXZ = hardwareMap.get(DcMotorEx.class, "turretXZ");
+//        turretYZ = hardwareMap.get(DcMotorEx.class, "turretYZ");
 
-        shooterMotor = hardwareMap.get(DcMotorEx.class, "shooter");
-        intakeMotor = hardwareMap.get(DcMotorEx.class, "intake");
-        imu = hardwareMap.get(IMU.class, "imu");
+//        shooterMotor = hardwareMap.get(DcMotorEx.class, "shooter");
+//        intakeMotor = hardwareMap.get(DcMotorEx.class, "intake");
+        imu = hardwareMap.get(IMU.class, "imu"); // NOT USING IMU FOR NOW.
 
         driveBL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         driveBR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         driveFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         driveFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        turretXZ.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        turretYZ.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        turretXZ.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        turretYZ.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        shooterMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        shooterMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         driveBL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         driveBR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         driveFL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         driveFR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        turretXZ.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        turretYZ.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        turretXZ.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        turretYZ.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        shooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        shooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        driveBL.setDirection(DcMotorEx.Direction.REVERSE); // flip
+        // DO NOT MODIFY
+        driveFL.setDirection(DcMotorEx.Direction.REVERSE);
+        driveBL.setDirection(DcMotorEx.Direction.REVERSE);
+        driveFR.setDirection(DcMotorEx.Direction.FORWARD);
+        driveBR.setDirection(DcMotorEx.Direction.FORWARD);
 
-        // make sure it is in position so it can be calculated correctlyf
+
         IMU.Parameters parameters = new IMU.Parameters(
                 new RevHubOrientationOnRobot(
                         RevHubOrientationOnRobot.LogoFacingDirection.UP,
                         RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
         imu.initialize(parameters);
+
+        while (!isStarted() && !isStopRequested()) { // test individual motors for mapping (DO NOT MODIFY MAPPING FOR NOW)
+            telemetry.addLine("Motor test (press for test)");
+            telemetry.addLine("A: FL  B: FR   X: BL   Y: BR");
+            if (gamepad1.a) driveFL.setPower(0.5); else driveFL.setPower(0.0);
+            if (gamepad1.b) driveFR.setPower(0.5); else driveFR.setPower(0.0);
+            if (gamepad1.x) driveBL.setPower(0.5); else driveBL.setPower(0.0);
+            if (gamepad1.y) driveBR.setPower(0.5); else driveBR.setPower(0.0);
+            telemetry.update();
+            idle();
+        }
 
         waitForStart();
 
@@ -81,7 +96,8 @@ public class SampleTeleOp extends LinearOpMode {
         final double STICK_DEADZONE = 0.1; // stick drift
 
         final double DRIVE_MAX = 1.0;
-        final double DRIVE_SLOW_FACTOR = 0.5;
+        final double DRIVE_SLOW_FACTOR = 0.25;
+        final double ROTATE_SLOW_FACTOR = 0.5;
 
         final double SHOOTER_POWER = 1.0;
         final long SINGLE_SHOOT_TIME_MS = 500;
@@ -105,25 +121,15 @@ public class SampleTeleOp extends LinearOpMode {
 
             double rx = gamepad1.right_stick_x;
             double ry = -gamepad1.right_stick_y;
-            double rMag = Math.hypot(rx, ry);
+            double rMag = Math.abs(rx);
 
             boolean slowMode = gamepad1.y;
             double driveScale = slowMode ? DRIVE_SLOW_FACTOR : 1.0;
 
             double rotationPower = 0.0;
-            if (rMag > STICK_DEADZONE) {
-                double desiredHeading = Math.atan2(rx, ry);
-                double currentHeading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
-
-                double error = desiredHeading - currentHeading;
-                while (error > Math.PI) error -= 2.0 * Math.PI;
-                while (error < -Math.PI) error += 2.0 * Math.PI;
-
-                rotationPower = ROTATION_KP * error;
-                if (rotationPower > MAX_ROTATION_POWER) rotationPower = MAX_ROTATION_POWER;
-                if (rotationPower < -MAX_ROTATION_POWER) rotationPower = -MAX_ROTATION_POWER;
-
-                if (slowMode) rotationPower *= DRIVE_SLOW_FACTOR;
+            if (Math.abs(rx) > STICK_DEADZONE) {
+                rotationPower = rx * MAX_ROTATION_POWER;
+                if (slowMode) rotationPower *= ROTATE_SLOW_FACTOR;
             } else {
                 rotationPower = 0.0;
             }
@@ -170,9 +176,9 @@ public class SampleTeleOp extends LinearOpMode {
                 intakeCmd *= (INTAKE_SLOW_POWER / INTAKE_POWER);
             }
 
-            turretXZ.setPower(turretCmdXZ);
-            turretYZ.setPower(turretCmdYZ);
-            intakeMotor.setPower(intakeCmd);
+//            turretXZ.setPower(turretCmdXZ);
+//            turretYZ.setPower(turretCmdYZ);
+//            intakeMotor.setPower(intakeCmd);
 
             long now = System.currentTimeMillis();
 
@@ -180,7 +186,7 @@ public class SampleTeleOp extends LinearOpMode {
                 if (!isShootingSingle && !isShootingMulti) {
                     isShootingSingle = true;
                     singleShootStartMs = now;
-                    shooterMotor.setPower(SHOOTER_POWER);
+//                    shooterMotor.setPower(SHOOTER_POWER);
                 }
             }
             aPrev = gamepad1.a;
@@ -191,19 +197,19 @@ public class SampleTeleOp extends LinearOpMode {
                     multiShotsFired = 0;
                     multiPhaseShooting = true;
                     multiPhaseStartMs = now;
-                    shooterMotor.setPower(SHOOTER_POWER);
+//                    shooterMotor.setPower(SHOOTER_POWER);
                 } else {
                     isShootingMulti = false;
                     multiShotsFired = 0;
                     multiPhaseShooting = false;
-                    shooterMotor.setPower(0.0);
+//                    shooterMotor.setPower(0.0);
                 }
             }
             xPrev = gamepad1.x;
 
             if (isShootingSingle) {
                 if (now - singleShootStartMs >= SINGLE_SHOOT_TIME_MS) {
-                    shooterMotor.setPower(0.0);
+//                    shooterMotor.setPower(0.0);
                     isShootingSingle = false;
                 }
             }
@@ -211,7 +217,7 @@ public class SampleTeleOp extends LinearOpMode {
             if (isShootingMulti) {
                 if (multiPhaseShooting) {
                     if (now - multiPhaseStartMs >= SINGLE_SHOOT_TIME_MS) {
-                        shooterMotor.setPower(0.0);
+//                        shooterMotor.setPower(0.0);
                         multiPhaseShooting = false;
                         multiPhaseStartMs = now;
                         multiShotsFired++;
@@ -222,9 +228,9 @@ public class SampleTeleOp extends LinearOpMode {
                             isShootingMulti = false;
                             multiShotsFired = 0;
                             multiPhaseShooting = false;
-                            shooterMotor.setPower(0.0);
+//                            shooterMotor.setPower(0.0);
                         } else {
-                            shooterMotor.setPower(SHOOTER_POWER);
+//                            shooterMotor.setPower(SHOOTER_POWER);
                             multiPhaseShooting = true;
                             multiPhaseStartMs = now;
                         }
@@ -233,11 +239,14 @@ public class SampleTeleOp extends LinearOpMode {
             }
 
             if (!isShootingSingle && !isShootingMulti) {
-                shooterMotor.setPower(0.0);
+//                shooterMotor.setPower(0.0);
             }
 
-            telemetry.addData("Drive (L stick)", "x=%.2f y=%.2f", lx, ly);
-            telemetry.addData("Right stick mag", "%.2f", rMag);
+
+            telemetry.addData("Sticks", "lx=%.2f ly=%.2f", lx, ly);
+            telemetry.addData("Motor calc", "FL=%.3f BL=%.3f FR=%.3f BR=%.3f", fl, bl, fr, br);
+            telemetry.addData("Strafe", "x=%.2f y=%.2f", lx, ly);
+            telemetry.addData("Right stick mag (rx)", "%.2f", rMag);
             telemetry.addData("Rotation Power", "%.3f", rotationPower);
             telemetry.addData("Turret XZ", "%.2f", turretCmdXZ);
             telemetry.addData("Turret YZ", "%.2f", turretCmdYZ);
