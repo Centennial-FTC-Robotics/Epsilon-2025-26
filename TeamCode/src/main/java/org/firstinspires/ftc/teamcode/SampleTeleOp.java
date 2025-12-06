@@ -19,7 +19,7 @@ public class SampleTeleOp extends LinearOpMode {
     private DcMotorEx driveFR;
 
     private DcMotorEx turretXZ;
-    private DcMotorEx turretYZ;
+//    private DcMotorEx turretYZ;
 
     private DcMotorEx shooterMotor;
     private DcMotorEx intakeMotor;
@@ -57,7 +57,7 @@ public class SampleTeleOp extends LinearOpMode {
         driveFR = hardwareMap.get(DcMotorEx.class, "frontRight");
 
         turretXZ = hardwareMap.get(DcMotorEx.class, "turretXZ");
-        turretYZ = hardwareMap.get(DcMotorEx.class, "turretYZ");
+//        turretYZ = hardwareMap.get(DcMotorEx.class, "turretYZ");
 
         shooterMotor = hardwareMap.get(DcMotorEx.class, "shooter");
         intakeMotor = hardwareMap.get(DcMotorEx.class, "intake");
@@ -73,7 +73,7 @@ public class SampleTeleOp extends LinearOpMode {
         driveFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         turretXZ.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        turretYZ.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        turretYZ.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         shooterMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -84,7 +84,7 @@ public class SampleTeleOp extends LinearOpMode {
         driveFR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         turretXZ.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        turretYZ.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+//        turretYZ.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         shooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -188,7 +188,7 @@ public class SampleTeleOp extends LinearOpMode {
             }
 
             turretXZ.setPower(turretCmdXZ);
-            turretYZ.setPower(turretCmdYZ);
+//            turretYZ.setPower(turretCmdYZ);
             intakeMotor.setPower(intakeCmd);
 
             long now = System.currentTimeMillis();
