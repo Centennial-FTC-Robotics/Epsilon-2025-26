@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.arcrobotics.ftclib.hardware.SimpleServo;
+import com.arcrobotics.ftclib.hardware.ServoEx;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -16,27 +18,53 @@ public class SampleTeleOp extends LinearOpMode {
     private DcMotorEx driveFL;
     private DcMotorEx driveFR;
 
-//    private DcMotorEx turretXZ;
-//    private DcMotorEx turretYZ;
+    private DcMotorEx turretXZ;
+    private DcMotorEx turretYZ;
 
-//    private DcMotorEx shooterMotor;
-//    private DcMotorEx intakeMotor;
+    private DcMotorEx shooterMotor;
+    private DcMotorEx intakeMotor;
+
+    private ServoEx pusher;
 
     private IMU imu;
 
     @Override
     public void runOpMode() throws InterruptedException {
 
+        final double TURRET_POWER = 0.5;
+        final double TURRET_SLOW_POWER = 0.25;
+        final double INTAKE_POWER = 1.0;
+        final double INTAKE_SLOW_POWER = 0.5;
+        final double MAX_ROTATION_POWER = 0.8;
+        final double ROTATION_KP = 2.0;
+        final double STICK_DEADZONE = 0.1; // stick drift
+
+        final double DRIVE_MAX = 1.0;
+        final double DRIVE_SLOW_FACTOR = 0.25;
+        final double ROTATE_SLOW_FACTOR = 0.5;
+
+        final double SHOOTER_POWER = 1.0;
+        final long SINGLE_SHOOT_TIME_MS = 500;
+        final long INTER_SHOT_PAUSE_MS = 1000;
+        final int MULTI_SHOT_COUNT = 3;
+
+        final double RETRACT_ANGLE = 0.0;
+        final double PUSH_ANGLE = 90.0;
+
         driveBL = hardwareMap.get(DcMotorEx.class, "backLeft");
         driveBR = hardwareMap.get(DcMotorEx.class, "backRight");
         driveFL = hardwareMap.get(DcMotorEx.class, "frontLeft");
         driveFR = hardwareMap.get(DcMotorEx.class, "frontRight");
 
-//        turretXZ = hardwareMap.get(DcMotorEx.class, "turretXZ");
-//        turretYZ = hardwareMap.get(DcMotorEx.class, "turretYZ");
+        turretXZ = hardwareMap.get(DcMotorEx.class, "turretXZ");
+        turretYZ = hardwareMap.get(DcMotorEx.class, "turretYZ");
 
-//        shooterMotor = hardwareMap.get(DcMotorEx.class, "shooter");
-//        intakeMotor = hardwareMap.get(DcMotorEx.class, "intake");
+        shooterMotor = hardwareMap.get(DcMotorEx.class, "shooter");
+        intakeMotor = hardwareMap.get(DcMotorEx.class, "intake");
+
+        pusher = new SimpleServo(hardwareMap, "pusher", 0, 180, AngleUnit.DEGREES);
+        pusher.turnToAngle(RETRACT_ANGLE);
+
         imu = hardwareMap.get(IMU.class, "imu"); // NOT USING IMU FOR NOW.
 
         driveBL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -44,22 +72,22 @@ public class SampleTeleOp extends LinearOpMode {
         driveFL.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         driveFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-//        turretXZ.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        turretYZ.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        turretXZ.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        turretYZ.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-//        shooterMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        shooterMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         driveBL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         driveBR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         driveFL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         driveFR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-//        turretXZ.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        turretYZ.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        turretXZ.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        turretYZ.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-//        shooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        shooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // DO NOT MODIFY
         driveFL.setDirection(DcMotorEx.Direction.REVERSE);
@@ -86,23 +114,6 @@ public class SampleTeleOp extends LinearOpMode {
         }
 
         waitForStart();
-
-        final double TURRET_POWER = 0.5;
-        final double TURRET_SLOW_POWER = 0.25;
-        final double INTAKE_POWER = 1.0;
-        final double INTAKE_SLOW_POWER = 0.5;
-        final double MAX_ROTATION_POWER = 0.8;
-        final double ROTATION_KP = 2.0;
-        final double STICK_DEADZONE = 0.1; // stick drift
-
-        final double DRIVE_MAX = 1.0;
-        final double DRIVE_SLOW_FACTOR = 0.25;
-        final double ROTATE_SLOW_FACTOR = 0.5;
-
-        final double SHOOTER_POWER = 1.0;
-        final long SINGLE_SHOOT_TIME_MS = 500;
-        final long INTER_SHOT_PAUSE_MS = 1000;
-        final int MULTI_SHOT_COUNT = 3;
 
         boolean aPrev = false;
         boolean xPrev = false;
@@ -176,9 +187,9 @@ public class SampleTeleOp extends LinearOpMode {
                 intakeCmd *= (INTAKE_SLOW_POWER / INTAKE_POWER);
             }
 
-//            turretXZ.setPower(turretCmdXZ);
-//            turretYZ.setPower(turretCmdYZ);
-//            intakeMotor.setPower(intakeCmd);
+            turretXZ.setPower(turretCmdXZ);
+            turretYZ.setPower(turretCmdYZ);
+            intakeMotor.setPower(intakeCmd);
 
             long now = System.currentTimeMillis();
 
@@ -186,7 +197,8 @@ public class SampleTeleOp extends LinearOpMode {
                 if (!isShootingSingle && !isShootingMulti) {
                     isShootingSingle = true;
                     singleShootStartMs = now;
-//                    shooterMotor.setPower(SHOOTER_POWER);
+                    shooterMotor.setPower(SHOOTER_POWER);
+                    pusher.turnToAngle(PUSH_ANGLE);
                 }
             }
             aPrev = gamepad1.a;
@@ -197,30 +209,37 @@ public class SampleTeleOp extends LinearOpMode {
                     multiShotsFired = 0;
                     multiPhaseShooting = true;
                     multiPhaseStartMs = now;
-//                    shooterMotor.setPower(SHOOTER_POWER);
+                    shooterMotor.setPower(SHOOTER_POWER);
+
+                    pusher.turnToAngle(PUSH_ANGLE);
                 } else {
                     isShootingMulti = false;
                     multiShotsFired = 0;
                     multiPhaseShooting = false;
-//                    shooterMotor.setPower(0.0);
+                    shooterMotor.setPower(0.0);
+                    pusher.turnToAngle(RETRACT_ANGLE);
                 }
             }
             xPrev = gamepad1.x;
 
             if (isShootingSingle) {
                 if (now - singleShootStartMs >= SINGLE_SHOOT_TIME_MS) {
-//                    shooterMotor.setPower(0.0);
+                    shooterMotor.setPower(0.0);
                     isShootingSingle = false;
+
+                    pusher.turnToAngle(RETRACT_ANGLE);
                 }
             }
 
             if (isShootingMulti) {
                 if (multiPhaseShooting) {
                     if (now - multiPhaseStartMs >= SINGLE_SHOOT_TIME_MS) {
-//                        shooterMotor.setPower(0.0);
+                        shooterMotor.setPower(0.0);
                         multiPhaseShooting = false;
                         multiPhaseStartMs = now;
                         multiShotsFired++;
+
+                        pusher.turnToAngle(RETRACT_ANGLE);
                     }
                 } else {
                     if (now - multiPhaseStartMs >= INTER_SHOT_PAUSE_MS) {
@@ -228,18 +247,22 @@ public class SampleTeleOp extends LinearOpMode {
                             isShootingMulti = false;
                             multiShotsFired = 0;
                             multiPhaseShooting = false;
-//                            shooterMotor.setPower(0.0);
+                            shooterMotor.setPower(0.0);
+                            pusher.turnToAngle(RETRACT_ANGLE);
                         } else {
-//                            shooterMotor.setPower(SHOOTER_POWER);
+                            shooterMotor.setPower(SHOOTER_POWER);
                             multiPhaseShooting = true;
                             multiPhaseStartMs = now;
+
+                            pusher.turnToAngle(PUSH_ANGLE);
                         }
                     }
                 }
             }
 
             if (!isShootingSingle && !isShootingMulti) {
-//                shooterMotor.setPower(0.0);
+                shooterMotor.setPower(0.0);
+                pusher.turnToAngle(RETRACT_ANGLE);
             }
 
 
@@ -251,6 +274,7 @@ public class SampleTeleOp extends LinearOpMode {
             telemetry.addData("Turret XZ", "%.2f", turretCmdXZ);
             telemetry.addData("Turret YZ", "%.2f", turretCmdYZ);
             telemetry.addData("Intake Power", "%.2f", intakeCmd);
+            telemetry.addData("Pusher angle (deg)", "%.1f", pusher.getAngle());
             telemetry.addData("Shooting Single", isShootingSingle);
             telemetry.addData("Shooting Multi", isShootingMulti);
             telemetry.addData("Multi Fired", multiShotsFired);
