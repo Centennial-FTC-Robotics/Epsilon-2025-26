@@ -6,8 +6,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-@Autonomous(name = "AutonomousSouthRedInactive")
-public class AutonomousSouthRedInactive extends LinearOpMode {
+@Autonomous(name = "AutonomousSBNRInactive")
+public class AutonomousSBNRInactive extends LinearOpMode {
 
     private DcMotorEx driveFL;
     private DcMotorEx driveFR;
@@ -41,17 +41,17 @@ public class AutonomousSouthRedInactive extends LinearOpMode {
         waitForStart();
 
         if (opModeIsActive()) {
-            double power = 0.5;
-            double strafeTime = 2.0; // seconds
+            double power = 1.0;
+            double strafeTime = 1.0; // seconds
             ElapsedTime timer = new ElapsedTime();
             timer.reset();
 
             while (opModeIsActive()) {
                 if (timer.seconds() < strafeTime) {
-                    driveFL.setPower( power);
-                    driveFR.setPower(-power);
-                    driveBL.setPower(-power);
-                    driveBR.setPower( power);
+                    driveFL.setPower(-power);
+                    driveFR.setPower( power);
+                    driveBL.setPower( power);
+                    driveBR.setPower(-power);
 
                     telemetry.addData("Action", "Strafing");
                     telemetry.addData("Time", "%.2f / %.2f", timer.seconds(), strafeTime);
