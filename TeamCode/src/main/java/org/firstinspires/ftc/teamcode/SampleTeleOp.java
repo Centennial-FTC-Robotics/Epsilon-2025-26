@@ -48,8 +48,8 @@ public class SampleTeleOp extends LinearOpMode {
         final long INTER_SHOT_PAUSE_MS = 1000;
         final int MULTI_SHOT_COUNT = 3;
 
-        final double RETRACT_ANGLE = 90.0;
-        final double PUSH_ANGLE = 0.0;
+        final double RETRACT_ANGLE = 180.0;
+        final double PUSH_ANGLE = 6.7;
 
         driveBL = hardwareMap.get(DcMotorEx.class, "backLeft");
         driveBR = hardwareMap.get(DcMotorEx.class, "backRight");
@@ -63,7 +63,7 @@ public class SampleTeleOp extends LinearOpMode {
         intakeMotor = hardwareMap.get(DcMotorEx.class, "intake");
 
         pusher = new SimpleServo(hardwareMap, "pusher", 0, 180, AngleUnit.DEGREES);
-        pusher.turnToAngle(RETRACT_ANGLE);
+        pusher.turnToAngle(RETRACT_ANGLE, AngleUnit.DEGREES);
 
         imu = hardwareMap.get(IMU.class, "imu"); // NOT USING IMU FOR NOW.
 
@@ -103,13 +103,23 @@ public class SampleTeleOp extends LinearOpMode {
         imu.initialize(parameters);
 
         while (!isStarted() && !isStopRequested()) { // test individual motors for mapping (DO NOT MODIFY MAPPING FOR NOW)
+            // Motor mapping test (unchanged behavior)
             telemetry.addLine("Motor test (press for test)");
             telemetry.addLine("A: FL  B: FR   X: BL   Y: BR");
             if (gamepad1.a) driveFL.setPower(0.5); else driveFL.setPower(0.0);
             if (gamepad1.b) driveFR.setPower(0.5); else driveFR.setPower(0.0);
             if (gamepad1.x) driveBL.setPower(0.5); else driveBL.setPower(0.0);
             if (gamepad1.y) driveBR.setPower(0.5); else driveBR.setPower(0.0);
+
+            double movement = 0.0;
+            if (gamepad1.dpad_down) movement = -0.1;
+            if (gamepad1.dpad_up) movement = 0.1;
+            pusher.rotateByAngle(movement, AngleUnit.DEGREES);
+
+            // Telemetry to show what you're aiming for
+            telemetry.addData("Pusher current (deg)", "%.1f", pusher.getAngle());
             telemetry.update();
+
             idle();
         }
 
@@ -236,14 +246,14 @@ public class SampleTeleOp extends LinearOpMode {
                     isShootingSingle = true;
                     singleShootStartMs = now;
                     // shooterMotor.setPower(-SHOOTER_POWER); // no longer needed
-                    pusher.turnToAngle(PUSH_ANGLE);
+                    pusher.turnToAngle(PUSH_ANGLE, AngleUnit.DEGREES);
                 }
             } else if (aPressedFrom2) {
                 if (!isShootingSingle && !isShootingMulti) {
                     isShootingSingle = true;
                     singleShootStartMs = now;
                     // shooterMotor.setPower(-SHOOTER_POWER); // no longer needed
-                    pusher.turnToAngle(PUSH_ANGLE);
+                    pusher.turnToAngle(PUSH_ANGLE, AngleUnit.DEGREES);
                 }
             }
 
@@ -263,14 +273,14 @@ public class SampleTeleOp extends LinearOpMode {
                     multiPhaseShooting = true;
                     multiPhaseStartMs = now;
                     // shooterMotor.setPower(-SHOOTER_POWER); // no longer needed
-                    pusher.turnToAngle(PUSH_ANGLE);
+                    pusher.turnToAngle(PUSH_ANGLE, AngleUnit.DEGREES);
                 } else {
                     // cancel multi-shoot
                     isShootingMulti = false;
                     multiShotsFired = 0;
                     multiPhaseShooting = false;
                     // don't forcibly shut the shooter here; B controls shooter
-                    pusher.turnToAngle(RETRACT_ANGLE);
+                    pusher.turnToAngle(RETRACT_ANGLE, AngleUnit.DEGREES);
                 }
             } else if (xPressedFrom2) {
                 if (!isShootingMulti) {
@@ -279,13 +289,13 @@ public class SampleTeleOp extends LinearOpMode {
                     multiPhaseShooting = true;
                     multiPhaseStartMs = now;
                     // shooterMotor.setPower(-SHOOTER_POWER); // no longer needed
-                    pusher.turnToAngle(PUSH_ANGLE);
+                    pusher.turnToAngle(PUSH_ANGLE, AngleUnit.DEGREES);
                 } else {
                     isShootingMulti = false;
                     multiShotsFired = 0;
                     multiPhaseShooting = false;
                     // don't forcibly shut the shooter here; B controls shooter
-                    pusher.turnToAngle(RETRACT_ANGLE);
+                    pusher.turnToAngle(RETRACT_ANGLE, AngleUnit.DEGREES);
                 }
             }
 
@@ -297,7 +307,7 @@ public class SampleTeleOp extends LinearOpMode {
                     // shooterMotor.setPower(0.0); // removed: shooter is controlled by B
                     isShootingSingle = false;
 
-                    pusher.turnToAngle(RETRACT_ANGLE);
+                    pusher.turnToAngle(RETRACT_ANGLE, AngleUnit.DEGREES);
                 }
             }
 
@@ -309,7 +319,7 @@ public class SampleTeleOp extends LinearOpMode {
                         multiPhaseStartMs = now;
                         multiShotsFired++;
 
-                        pusher.turnToAngle(RETRACT_ANGLE);
+                        pusher.turnToAngle(RETRACT_ANGLE, AngleUnit.DEGREES);
                     }
                 } else {
                     if (now - multiPhaseStartMs >= INTER_SHOT_PAUSE_MS) {
@@ -318,13 +328,13 @@ public class SampleTeleOp extends LinearOpMode {
                             multiShotsFired = 0;
                             multiPhaseShooting = false;
                             // shooterMotor.setPower(0.0); // removed
-                            pusher.turnToAngle(RETRACT_ANGLE);
+                            pusher.turnToAngle(RETRACT_ANGLE, AngleUnit.DEGREES);
                         } else {
                             // shooterMotor.setPower(-SHOOTER_POWER); // not needed
                             multiPhaseShooting = true;
                             multiPhaseStartMs = now;
 
-                            pusher.turnToAngle(PUSH_ANGLE);
+                            pusher.turnToAngle(PUSH_ANGLE, AngleUnit.DEGREES);
                         }
                     }
                 }
