@@ -19,7 +19,7 @@ public class SampleTeleOp extends LinearOpMode {
     private DcMotorEx driveFR;
 
     private DcMotorEx turretXZ;
-//    private DcMotorEx turretYZ;
+    private ServoEx turretYZ;
 
     private DcMotorEx flywheelMotor;
     private DcMotorEx intakeMotor;
@@ -32,21 +32,17 @@ public class SampleTeleOp extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
 
         final double TURRET_POWER = 0.5;
-        final double TURRET_SLOW_POWER = 0.25;
         final double INTAKE_POWER = 1.0;
-        final double INTAKE_SLOW_POWER = 0.5;
         final double MAX_ROTATION_POWER = 0.8;
-        final double ROTATION_KP = 2.0;
         final double STICK_DEADZONE = 0.1; // stick drift
 
         final double DRIVE_MAX = 1.0;
-        final double DRIVE_SLOW_FACTOR = 0.25;
-        final double ROTATE_SLOW_FACTOR = 0.5;
 
         final double SHOOTER_POWER = 1.0;
-        final long SINGLE_SHOOT_TIME_MS = 500;
-        final long INTER_SHOT_PAUSE_MS = 1000;
-        final int MULTI_SHOT_COUNT = 3;
+
+        final double TURRET_YZ_MIN = 0.0;
+        final double TURRET_YZ_MAX = 180.0;
+        final double TURRET_YZ_STEP = 2.5;
 
         final double RETRACT_ANGLE = 180.0;
         final double PUSH_ANGLE = 6.7;
@@ -57,7 +53,7 @@ public class SampleTeleOp extends LinearOpMode {
         driveFR = hardwareMap.get(DcMotorEx.class, "frontRight");
 
         turretXZ = hardwareMap.get(DcMotorEx.class, "turretXZ");
-//        turretYZ = hardwareMap.get(DcMotorEx.class, "turretYZ");
+        turretYZ = new SimpleServo(hardwareMap, "turretYZ", 0, 180, AngleUnit.DEGREES);
 
         flywheelMotor = hardwareMap.get(DcMotorEx.class, "shooter");
         intakeMotor = hardwareMap.get(DcMotorEx.class, "intake");
@@ -73,9 +69,8 @@ public class SampleTeleOp extends LinearOpMode {
         driveFR.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         turretXZ.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-//        turretYZ.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        flywheelMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        flywheelMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         driveBL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -84,7 +79,6 @@ public class SampleTeleOp extends LinearOpMode {
         driveFR.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         turretXZ.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        turretYZ.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         flywheelMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -95,15 +89,13 @@ public class SampleTeleOp extends LinearOpMode {
         driveFR.setDirection(DcMotorEx.Direction.FORWARD);
         driveBR.setDirection(DcMotorEx.Direction.FORWARD);
 
-
         IMU.Parameters parameters = new IMU.Parameters(
                 new RevHubOrientationOnRobot(
                         RevHubOrientationOnRobot.LogoFacingDirection.UP,
                         RevHubOrientationOnRobot.UsbFacingDirection.FORWARD));
         imu.initialize(parameters);
 
-        while (!isStarted() && !isStopRequested()) { // test individual motors for mapping (DO NOT MODIFY MAPPING FOR NOW)
-            // Motor mapping test (unchanged behavior)
+        while (!isStarted() && !isStopRequested()) {
             telemetry.addLine("Motor test (press for test)");
             telemetry.addLine("A: FL  B: FR   X: BL   Y: BR");
             if (gamepad1.a) driveFL.setPower(0.5); else driveFL.setPower(0.0);
@@ -116,7 +108,6 @@ public class SampleTeleOp extends LinearOpMode {
             if (gamepad1.dpad_up) movement = 0.1;
             pusher.rotateByAngle(movement, AngleUnit.DEGREES);
 
-            // Telemetry to show what you're aiming for
             telemetry.addData("Pusher current (deg)", "%.1f", pusher.getAngle());
             telemetry.update();
 
@@ -125,45 +116,33 @@ public class SampleTeleOp extends LinearOpMode {
 
         waitForStart();
 
+        double turretYZAngle = 90.0;
+        turretYZ.turnToAngle(turretYZAngle, AngleUnit.DEGREES);
+
         boolean aPrev1 = false;
         boolean aPrev2 = false;
-        boolean xPrev1 = false;
-        boolean xPrev2 = false;
-
-        boolean isShootingSingle = false;
-        long singleShootStartMs = 0;
-
-        boolean isShootingMulti = false;
-        int multiShotsFired = 0;
-        boolean multiPhaseShooting = false;
-        long multiPhaseStartMs = 0;
+        boolean yPrev1 = false;
+        boolean yPrev2 = false;
 
         while (opModeIsActive()) {
-            double ly1 = -gamepad1.left_stick_y;
             double lx1 = gamepad1.left_stick_x;
+            double ly1 = -gamepad1.left_stick_y;
             double rx1 = gamepad1.right_stick_x;
-            double ry1 = -gamepad1.right_stick_y;
 
-            double ly2 = -gamepad2.left_stick_y;
             double lx2 = gamepad2.left_stick_x;
+            double ly2 = -gamepad2.left_stick_y;
             double rx2 = gamepad2.right_stick_x;
-            double ry2 = -gamepad2.right_stick_y;
 
-            double ly = (Math.abs(ly1) > STICK_DEADZONE) ? ly1 : ly2;
             double lx = (Math.abs(lx1) > STICK_DEADZONE) ? lx1 : lx2;
+            double ly = (Math.abs(ly1) > STICK_DEADZONE) ? ly1 : ly2;
             double rx = (Math.abs(rx1) > STICK_DEADZONE) ? rx1 : rx2;
-            double ry = (Math.abs(ry1) > STICK_DEADZONE) ? ry1 : ry2;
-            double rMag = Math.abs(rx);
 
-            boolean slowMode = gamepad1.y || gamepad2.y;
-            double driveScale = slowMode ? DRIVE_SLOW_FACTOR : 1.0; // fix small naming if needed
+            double rt = Math.max(gamepad1.right_trigger, gamepad2.right_trigger);
+            double driveScale = 1.0 - (0.75 * rt);
 
             double rotationPower = 0.0;
             if (Math.abs(rx) > STICK_DEADZONE) {
                 rotationPower = rx * MAX_ROTATION_POWER;
-                if (slowMode) rotationPower *= ROTATE_SLOW_FACTOR;
-            } else {
-                rotationPower = 0.0;
             }
 
             double denom = Math.max(Math.abs(ly) + Math.abs(lx) + Math.abs(rotationPower), 1.0);
@@ -183,176 +162,65 @@ public class SampleTeleOp extends LinearOpMode {
             driveBR.setPower(rangeClip(br, -DRIVE_MAX, DRIVE_MAX));
 
             double turretCmdXZ = 0.0;
-            double turretCmdYZ = 0.0;
-            double intakeCmd = 0.0;
 
-            if (gamepad1.dpad_left) {
+            if (gamepad1.dpad_left || gamepad2.dpad_left) {
                 turretCmdXZ = -TURRET_POWER;
-            } else if (gamepad1.dpad_right) {
+            } else if (gamepad1.dpad_right || gamepad2.dpad_right) {
                 turretCmdXZ = TURRET_POWER;
-            } else if (gamepad2.dpad_left) {
-                turretCmdXZ = -TURRET_POWER;
-            } else if (gamepad2.dpad_right) {
-                turretCmdXZ = TURRET_POWER;
-            }
-
-            if (gamepad1.dpad_up) {
-                turretCmdYZ = TURRET_POWER;
-            } else if (gamepad1.dpad_down) {
-                turretCmdYZ = -TURRET_POWER;
-            } else if (gamepad2.dpad_up) {
-                turretCmdYZ = TURRET_POWER;
-            } else if (gamepad2.dpad_down) {
-                turretCmdYZ = -TURRET_POWER;
-            }
-
-            if (gamepad1.b) {
-                intakeCmd = 0.0;
-            } else if (gamepad2.b) {
-                intakeCmd = 0.0;
             } else {
-                intakeCmd = INTAKE_POWER;
+                turretCmdXZ = 0.0;
             }
-
-            if (slowMode) {
-                turretCmdXZ *= (TURRET_SLOW_POWER / TURRET_POWER);
-                turretCmdYZ *= (TURRET_SLOW_POWER / TURRET_POWER);
-                intakeCmd *= (INTAKE_SLOW_POWER / INTAKE_POWER);
-            }
-
             turretXZ.setPower(turretCmdXZ);
-//            turretYZ.setPower(turretCmdYZ);
-            intakeMotor.setPower(intakeCmd);
 
-            // --- NEW: shooter always runs unless B is pressed on either gamepad ---
-            double shooterCmd;
-            if (gamepad1.b || gamepad2.b) {
-                shooterCmd = 0.0;
-            } else {
-                shooterCmd = -SHOOTER_POWER;
+            boolean dpadUp = gamepad1.dpad_up || gamepad2.dpad_up;
+            boolean dpadDown = gamepad1.dpad_down || gamepad2.dpad_down;
+            if (dpadUp && !dpadDown) {
+                turretYZAngle += TURRET_YZ_STEP;
+                if (turretYZAngle > TURRET_YZ_MAX) turretYZAngle = TURRET_YZ_MAX;
+                turretYZ.turnToAngle(turretYZAngle, AngleUnit.DEGREES);
+            } else if (dpadDown && !dpadUp) {
+                turretYZAngle -= TURRET_YZ_STEP;
+                if (turretYZAngle < TURRET_YZ_MIN) turretYZAngle = TURRET_YZ_MIN;
+                turretYZ.turnToAngle(turretYZAngle, AngleUnit.DEGREES);
             }
-            // apply shooter baseline power (shooting logic below will not change shooter power)
-            flywheelMotor.setPower(shooterCmd);
 
-            long now = System.currentTimeMillis();
+            double intakeCmd = 0.0;
+            if (gamepad1.b || gamepad2.b) {
+                intakeCmd = INTAKE_POWER;
+            } else {
+                intakeCmd = 0.0;
+            }
+            intakeMotor.setPower(intakeCmd);
 
             boolean aNow1 = gamepad1.a;
             boolean aNow2 = gamepad2.a;
-            boolean aPressedFrom1 = aNow1 && !aPrev1;
-            boolean aPressedFrom2 = aNow2 && !aPrev2;
-
-            if (aPressedFrom1) {
-                if (!isShootingSingle && !isShootingMulti) {
-                    isShootingSingle = true;
-                    singleShootStartMs = now;
-                    // flywheelMotor.setPower(-SHOOTER_POWER); // no longer needed
-                    pusher.turnToAngle(PUSH_ANGLE, AngleUnit.DEGREES);
-                }
-            } else if (aPressedFrom2) {
-                if (!isShootingSingle && !isShootingMulti) {
-                    isShootingSingle = true;
-                    singleShootStartMs = now;
-                    // flywheelMotor.setPower(-SHOOTER_POWER); // no longer needed
-                    pusher.turnToAngle(PUSH_ANGLE, AngleUnit.DEGREES);
-                }
+            boolean aPressed = (aNow1 && !aPrev1) || (aNow2 && !aPrev2);
+            if (aPressed) {
+                // TODO: Implement shoot sequence here (start flywheel, pusher sequence, etc.)
             }
-
             aPrev1 = aNow1;
             aPrev2 = aNow2;
 
-            boolean xNow1 = gamepad1.x;
-            boolean xNow2 = gamepad2.x;
-            boolean xPressedFrom1 = xNow1 && !xPrev1;
-            boolean xPressedFrom2 = xNow2 && !xPrev2;
-
-            if (xPressedFrom1) {
-                if (!isShootingMulti) {
-                    // start multi-shoot
-                    isShootingMulti = true;
-                    multiShotsFired = 0;
-                    multiPhaseShooting = true;
-                    multiPhaseStartMs = now;
-                    // flywheelMotor.setPower(-SHOOTER_POWER); // no longer needed
-                    pusher.turnToAngle(PUSH_ANGLE, AngleUnit.DEGREES);
-                } else {
-                    // cancel multi-shoot
-                    isShootingMulti = false;
-                    multiShotsFired = 0;
-                    multiPhaseShooting = false;
-                    // don't forcibly shut the shooter here; B controls shooter
-                    pusher.turnToAngle(RETRACT_ANGLE, AngleUnit.DEGREES);
-                }
-            } else if (xPressedFrom2) {
-                if (!isShootingMulti) {
-                    isShootingMulti = true;
-                    multiShotsFired = 0;
-                    multiPhaseShooting = true;
-                    multiPhaseStartMs = now;
-                    // flywheelMotor.setPower(-SHOOTER_POWER); // no longer needed
-                    pusher.turnToAngle(PUSH_ANGLE, AngleUnit.DEGREES);
-                } else {
-                    isShootingMulti = false;
-                    multiShotsFired = 0;
-                    multiPhaseShooting = false;
-                    // don't forcibly shut the shooter here; B controls shooter
-                    pusher.turnToAngle(RETRACT_ANGLE, AngleUnit.DEGREES);
-                }
+            boolean yNow1 = gamepad1.y;
+            boolean yNow2 = gamepad2.y;
+            boolean yPressed = (yNow1 && !yPrev1) || (yNow2 && !yPrev2);
+            if (yPressed) {
+                // TODO: Implement auto-aim / aim-at-target routine here
             }
+            yPrev1 = yNow1;
+            yPrev2 = yNow2;
 
-            xPrev1 = xNow1;
-            xPrev2 = xNow2;
+            flywheelMotor.setPower(0.0);
 
-            if (isShootingSingle) {
-                if (now - singleShootStartMs >= SINGLE_SHOOT_TIME_MS) {
-                    // flywheelMotor.setPower(0.0); // removed: shooter is controlled by B
-                    isShootingSingle = false;
-
-                    pusher.turnToAngle(RETRACT_ANGLE, AngleUnit.DEGREES);
-                }
-            }
-
-            if (isShootingMulti) {
-                if (multiPhaseShooting) {
-                    if (now - multiPhaseStartMs >= SINGLE_SHOOT_TIME_MS) {
-                        // flywheelMotor.setPower(0.0); // removed
-                        multiPhaseShooting = false;
-                        multiPhaseStartMs = now;
-                        multiShotsFired++;
-
-                        pusher.turnToAngle(RETRACT_ANGLE, AngleUnit.DEGREES);
-                    }
-                } else {
-                    if (now - multiPhaseStartMs >= INTER_SHOT_PAUSE_MS) {
-                        if (multiShotsFired >= MULTI_SHOT_COUNT) {
-                            isShootingMulti = false;
-                            multiShotsFired = 0;
-                            multiPhaseShooting = false;
-                            // flywheelMotor.setPower(0.0); // removed
-                            pusher.turnToAngle(RETRACT_ANGLE, AngleUnit.DEGREES);
-                        } else {
-                            // flywheelMotor.setPower(-SHOOTER_POWER); // not needed
-                            multiPhaseShooting = true;
-                            multiPhaseStartMs = now;
-
-                            pusher.turnToAngle(PUSH_ANGLE, AngleUnit.DEGREES);
-                        }
-                    }
-                }
-            }
-
-            telemetry.addData("Sticks", "lx=%.2f ly=%.2f", lx, ly);
+            telemetry.addData("L stick", "lx=%.2f ly=%.2f", lx, ly);
+            telemetry.addData("R stick rx", "%.2f", rx);
+            telemetry.addData("Drive scale (rt)", "%.2f (rt=%.2f)", driveScale, rt);
             telemetry.addData("Motor calc", "FL=%.3f BL=%.3f FR=%.3f BR=%.3f", fl, bl, fr, br);
-            telemetry.addData("Strafe", "x=%.2f y=%.2f", lx, ly);
-            telemetry.addData("Right stick mag (rx)", "%.2f", rMag);
             telemetry.addData("Rotation Power", "%.3f", rotationPower);
-            telemetry.addData("Turret XZ", "%.2f", turretCmdXZ);
-            telemetry.addData("Turret YZ", "%.2f", turretCmdYZ);
+            telemetry.addData("Turret XZ Power", "%.2f", turretCmdXZ);
+            telemetry.addData("Turret YZ Angle", "%.1f", turretYZAngle);
             telemetry.addData("Intake Power", "%.2f", intakeCmd);
-            telemetry.addData("Shooter Power (applied)", "%.2f", shooterCmd);
-            telemetry.addData("Pusher angle (deg)", "%.1f", pusher.getAngle());
-            telemetry.addData("Shooting Single", isShootingSingle);
-            telemetry.addData("Shooting Multi", isShootingMulti);
-            telemetry.addData("Multi Fired", multiShotsFired);
+            telemetry.addData("Flywheel Power (idle)", "%.2f", 0.0);
             telemetry.update();
 
             idle();
