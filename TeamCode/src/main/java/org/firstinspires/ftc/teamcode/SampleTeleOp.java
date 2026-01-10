@@ -21,7 +21,7 @@ public class SampleTeleOp extends LinearOpMode {
     private DcMotorEx turretXZ;
 //    private DcMotorEx turretYZ;
 
-    private DcMotorEx shooterMotor;
+    private DcMotorEx flywheelMotor;
     private DcMotorEx intakeMotor;
 
     private ServoEx pusher;
@@ -59,7 +59,7 @@ public class SampleTeleOp extends LinearOpMode {
         turretXZ = hardwareMap.get(DcMotorEx.class, "turretXZ");
 //        turretYZ = hardwareMap.get(DcMotorEx.class, "turretYZ");
 
-        shooterMotor = hardwareMap.get(DcMotorEx.class, "shooter");
+        flywheelMotor = hardwareMap.get(DcMotorEx.class, "shooter");
         intakeMotor = hardwareMap.get(DcMotorEx.class, "intake");
 
         pusher = new SimpleServo(hardwareMap, "pusher", 0, 180, AngleUnit.DEGREES);
@@ -75,7 +75,7 @@ public class SampleTeleOp extends LinearOpMode {
         turretXZ.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 //        turretYZ.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        shooterMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        flywheelMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
         driveBL.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -86,7 +86,7 @@ public class SampleTeleOp extends LinearOpMode {
         turretXZ.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 //        turretYZ.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        shooterMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        flywheelMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // DO NOT MODIFY
@@ -232,7 +232,7 @@ public class SampleTeleOp extends LinearOpMode {
                 shooterCmd = -SHOOTER_POWER;
             }
             // apply shooter baseline power (shooting logic below will not change shooter power)
-            shooterMotor.setPower(shooterCmd);
+            flywheelMotor.setPower(shooterCmd);
 
             long now = System.currentTimeMillis();
 
@@ -245,14 +245,14 @@ public class SampleTeleOp extends LinearOpMode {
                 if (!isShootingSingle && !isShootingMulti) {
                     isShootingSingle = true;
                     singleShootStartMs = now;
-                    // shooterMotor.setPower(-SHOOTER_POWER); // no longer needed
+                    // flywheelMotor.setPower(-SHOOTER_POWER); // no longer needed
                     pusher.turnToAngle(PUSH_ANGLE, AngleUnit.DEGREES);
                 }
             } else if (aPressedFrom2) {
                 if (!isShootingSingle && !isShootingMulti) {
                     isShootingSingle = true;
                     singleShootStartMs = now;
-                    // shooterMotor.setPower(-SHOOTER_POWER); // no longer needed
+                    // flywheelMotor.setPower(-SHOOTER_POWER); // no longer needed
                     pusher.turnToAngle(PUSH_ANGLE, AngleUnit.DEGREES);
                 }
             }
@@ -272,7 +272,7 @@ public class SampleTeleOp extends LinearOpMode {
                     multiShotsFired = 0;
                     multiPhaseShooting = true;
                     multiPhaseStartMs = now;
-                    // shooterMotor.setPower(-SHOOTER_POWER); // no longer needed
+                    // flywheelMotor.setPower(-SHOOTER_POWER); // no longer needed
                     pusher.turnToAngle(PUSH_ANGLE, AngleUnit.DEGREES);
                 } else {
                     // cancel multi-shoot
@@ -288,7 +288,7 @@ public class SampleTeleOp extends LinearOpMode {
                     multiShotsFired = 0;
                     multiPhaseShooting = true;
                     multiPhaseStartMs = now;
-                    // shooterMotor.setPower(-SHOOTER_POWER); // no longer needed
+                    // flywheelMotor.setPower(-SHOOTER_POWER); // no longer needed
                     pusher.turnToAngle(PUSH_ANGLE, AngleUnit.DEGREES);
                 } else {
                     isShootingMulti = false;
@@ -304,7 +304,7 @@ public class SampleTeleOp extends LinearOpMode {
 
             if (isShootingSingle) {
                 if (now - singleShootStartMs >= SINGLE_SHOOT_TIME_MS) {
-                    // shooterMotor.setPower(0.0); // removed: shooter is controlled by B
+                    // flywheelMotor.setPower(0.0); // removed: shooter is controlled by B
                     isShootingSingle = false;
 
                     pusher.turnToAngle(RETRACT_ANGLE, AngleUnit.DEGREES);
@@ -314,7 +314,7 @@ public class SampleTeleOp extends LinearOpMode {
             if (isShootingMulti) {
                 if (multiPhaseShooting) {
                     if (now - multiPhaseStartMs >= SINGLE_SHOOT_TIME_MS) {
-                        // shooterMotor.setPower(0.0); // removed
+                        // flywheelMotor.setPower(0.0); // removed
                         multiPhaseShooting = false;
                         multiPhaseStartMs = now;
                         multiShotsFired++;
@@ -327,10 +327,10 @@ public class SampleTeleOp extends LinearOpMode {
                             isShootingMulti = false;
                             multiShotsFired = 0;
                             multiPhaseShooting = false;
-                            // shooterMotor.setPower(0.0); // removed
+                            // flywheelMotor.setPower(0.0); // removed
                             pusher.turnToAngle(RETRACT_ANGLE, AngleUnit.DEGREES);
                         } else {
-                            // shooterMotor.setPower(-SHOOTER_POWER); // not needed
+                            // flywheelMotor.setPower(-SHOOTER_POWER); // not needed
                             multiPhaseShooting = true;
                             multiPhaseStartMs = now;
 
