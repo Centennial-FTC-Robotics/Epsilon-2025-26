@@ -31,7 +31,7 @@ public class FlywheelTuningTutorial extends OpMode {
     @Override
     public void init(){
         gamepad1Ex = new GamepadEx(gamepad1);
-        flywheelMotor = hardwareMap.get(DcMotorEx.class, "shooter");
+        flywheelMotor = hardwareMap.get(DcMotorEx.class, "flywheel");
         gamepad1BReader = new ButtonReader(gamepad1Ex, GamepadKeys.Button.B);
         gamepad1YReader = new ButtonReader(gamepad1Ex, GamepadKeys.Button.Y);
 
