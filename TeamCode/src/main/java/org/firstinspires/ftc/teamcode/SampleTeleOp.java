@@ -2,6 +2,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.arcrobotics.ftclib.hardware.ServoEx;
+import com.qualcomm.hardware.bosch.BHI260IMU;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -71,7 +72,7 @@ public class SampleTeleOp extends OpMode {
         pusher = new SimpleServo(hardwareMap, "pusher", 0, 180, AngleUnit.DEGREES);
         pusher.turnToAngle(RETRACT_ANGLE, AngleUnit.DEGREES);
 
-        imu = hardwareMap.get(IMU.class, "imu");
+        imu = hardwareMap.get(BHI260IMU.class, "imu");
 
         driveBL.resetDeviceConfigurationForOpMode();
         driveBR.resetDeviceConfigurationForOpMode();
@@ -107,6 +108,7 @@ public class SampleTeleOp extends OpMode {
                         RevHubOrientationOnRobot.LogoFacingDirection.LEFT,
                         RevHubOrientationOnRobot.UsbFacingDirection.UP));
         imu.initialize(parameters);
+        imu.resetYaw();
 
         mecanum = new MecanumDrive(true, driveFL, driveFR, driveBL, driveBR);
 
