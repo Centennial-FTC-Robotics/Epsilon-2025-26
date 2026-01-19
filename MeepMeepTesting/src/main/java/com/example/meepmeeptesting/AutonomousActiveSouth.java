@@ -12,9 +12,9 @@ public class AutonomousActiveSouth {
         MeepMeep meepMeep = new MeepMeep(800);
 
         RoadRunnerBotEntity myBot = new DefaultBotBuilder(meepMeep)
-                .setColorScheme(new ColorSchemeRedDark())
-                .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 18)
-                .build();
+            .setColorScheme(new ColorSchemeRedDark())
+            .setConstraints(60, 60, Math.toRadians(180), Math.toRadians(180), 18)
+            .build();
 
         double t = 23.5;
 
@@ -35,7 +35,7 @@ public class AutonomousActiveSouth {
          */
 
         // (NEW) 3 Specimen Auto
-        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(t * 2.5, t * 0.5, Math.toRadians(180)))
+        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(t * 2.55, t * 0.5, Math.toRadians(180)))
             .waitSeconds(3.0)
             .splineToConstantHeading(new Vector2d(t * -2, t * 0.5), Math.toRadians(180))
             .turnTo(Math.toRadians(115))
@@ -47,15 +47,22 @@ public class AutonomousActiveSouth {
             .lineToYLinearHeading(t * 1.5, Math.toRadians(270))
             .splineToLinearHeading(new Pose2d(t * -2, t * 0.5, Math.toRadians(115)), Math.toRadians(180))
             .waitSeconds(2.0)
-            .splineToLinearHeading(new Pose2d(t * 2.5, t * 0.5, Math.toRadians(180)), Math.toRadians(0))
+            .splineToLinearHeading(new Pose2d(t * 0.5, t * 1.5, Math.toRadians(90)), Math.toRadians(90))
+            .splineToConstantHeading(new Vector2d(t * 0.5, t * 2.25), Math.toRadians(90))
+            .waitSeconds(2.0)
+            .lineToYLinearHeading(t * 2, Math.toRadians(90))
+            .lineToYLinearHeading(t * 1.5, Math.toRadians(270))
+            .splineToLinearHeading(new Pose2d(t * -2, t * 0.5, Math.toRadians(115)), Math.toRadians(180))
+            .waitSeconds(2.0)
+            .splineToLinearHeading(new Pose2d(t * 0, t * 1, Math.toRadians(180)), Math.toRadians(0))
             .build());
 
 
 
         meepMeep.setBackground(MeepMeep.Background.FIELD_DECODE_OFFICIAL)
-                .setDarkMode(true)
-                .setBackgroundAlpha(0.95f)
-                .addEntity(myBot)
-                .start();
+            .setDarkMode(true)
+            .setBackgroundAlpha(0.95f)
+            .addEntity(myBot)
+            .start();
     }
 }

@@ -28,7 +28,7 @@ import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
-@TeleOp(name = "SampleTeleOp (AutoAim)")
+@TeleOp(name = "TeleOpBlue")
 public class SampleTeleOp extends OpMode {
 
     private DcMotorEx driveBL;
@@ -77,7 +77,7 @@ public class SampleTeleOp extends OpMode {
     // Camera / AprilTag pipeline
     private OpenCvCamera camera;
     private AprilTagDetectionPipeline aprilTagDetectionPipeline;
-    private final int ID_TAG_OF_INTEREST = 20;
+    private final int ID_TAG_OF_INTEREST = 20; // 24 for RED
     private boolean autoAimActive = false;
 
     // Camera intrinsics from your sample (C920 @ 800x448). Update for your camera if needed.
