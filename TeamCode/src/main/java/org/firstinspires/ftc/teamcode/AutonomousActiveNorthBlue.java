@@ -16,14 +16,18 @@ import org.firstinspires.ftc.teamcode.Actions.PusherAction;
 import org.firstinspires.ftc.teamcode.Actions.ShootAction;
 import org.firstinspires.ftc.teamcode.Actions.TurretAction;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequenceBuilder;
+import org.openftc.apriltag.AprilTagDetection;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
+import org.firstinspires.ftc.teamcode.AprilTagDetectionPipeline;
+
+import java.util.ArrayList;
 
 @Autonomous(name = "ActiveNorthBlue", group = "Auto")
 public class AutonomousActiveNorthBlue extends LinearOpMode {
 
-    // ---- constants ----
     private static final double TILE = 23.5;
 
     // Actions
@@ -35,7 +39,7 @@ public class AutonomousActiveNorthBlue extends LinearOpMode {
 
     private SampleMecanumDrive drive;
 
-    // vision / auto-aim
+    // Vision / auto-aim
     private OpenCvCamera camera;
     private AprilTagDetectionPipeline aprilTagPipeline;
     private boolean autoAimActive = false;
@@ -73,26 +77,20 @@ public class AutonomousActiveNorthBlue extends LinearOpMode {
         waitForStart();
         if (isStopRequested()) return;
 
-        /* ===================== TRAJECTORY ===================== */
-
-        Action driveAction = drive.actionBuilder(startPose)
+        /* ===================== FIRST PATH ===================== */
+        Pose2d poseEstimate = drive.getPoseEstimate();
+        TrajectorySequenceBuilder driveSequence = drive.trajectorySequenceBuilder(poseEstimate)
                 .waitSeconds(3.0)
-
                 .splineToConstantHeading(
                         new Vector2d(TILE * -2, TILE * -0.5),
                         Math.toRadians(-180)
                 )
+                .turn(Math.toRadians(-115))
+                .waitSeconds(0.1);
 
-                .turnTo(Math.toRadians(-115))
-
-                // ---- SHOOTING ZONE ----
-                .waitSeconds(0.1) // just to settle
-                .build();
-
-        drive.runAction(driveAction);
+        drive.followTrajectorySequence(driveSequence.build());
 
         /* ===================== SHOOT ===================== */
-
         autoAimActive = true;
         flywheelAction.spinUp();
 
@@ -112,8 +110,8 @@ public class AutonomousActiveNorthBlue extends LinearOpMode {
         flywheelAction.stopFlywheel();
 
         /* ===================== CONTINUE PATH ===================== */
-
-        Action rest = drive.actionBuilder(drive.pose)
+        poseEstimate = drive.getPoseEstimate();
+        TrajectorySequenceBuilder restSequence = drive.trajectorySequenceBuilder(poseEstimate)
                 .splineToLinearHeading(
                         new Pose2d(TILE * -0.5, TILE * -1.5, Math.toRadians(-90)),
                         Math.toRadians(-90)
@@ -123,18 +121,22 @@ public class AutonomousActiveNorthBlue extends LinearOpMode {
                         Math.toRadians(-90)
                 )
                 .waitSeconds(2.0)
-                .lineToYLinearHeading(TILE * -2, Math.toRadians(-90))
-                .lineToYLinearHeading(TILE * -1.5, Math.toRadians(-270))
-                .build();
+                .splineToLinearHeading(
+                        new Pose2d(TILE * -2, TILE * -2.25, Math.toRadians(-90)),
+                        Math.toRadians(-90)
+                )
+                .splineToLinearHeading(
+                        new Pose2d(TILE * -1.5, TILE * -2.25, Math.toRadians(-90)),
+                        Math.toRadians(-90)
+                );
 
-        drive.runAction(rest);
+        drive.followTrajectorySequence(restSequence.build());
 
-        // stop everything
+        // Stop everything
         stopAll();
     }
 
     /* ===================== HELPERS ===================== */
-
     private void updateAll() {
         turretAction.update();
         intakeAction.update();
@@ -154,10 +156,10 @@ public class AutonomousActiveNorthBlue extends LinearOpMode {
     private void autoAim() {
         if (!autoAimActive) return;
 
-        var detections = aprilTagPipeline.getLatestDetections();
+        ArrayList<AprilTagDetection> detections = aprilTagPipeline.getLatestDetections();
         if (detections == null) return;
 
-        for (var tag : detections) {
+        for (AprilTagDetection tag : detections) {
             if (tag.id == 20) {
                 double yaw = Math.atan2(tag.pose.y, tag.pose.x);
                 double pitch = Math.atan2(tag.pose.z,
@@ -186,7 +188,6 @@ public class AutonomousActiveNorthBlue extends LinearOpMode {
         camera.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
             @Override
             public void onOpened() {
-                // resolution should match what the pipeline was calibrated for; sample used 800x448
                 camera.startStreaming(800, 448, OpenCvCameraRotation.UPRIGHT);
             }
 
