@@ -15,6 +15,16 @@
 apply from: '../build.common.gradle'
 apply from: '../build.dependencies.gradle'
 
+configurations.all {
+    resolutionStrategy.eachDependency { details ->
+        if (details.requested.group == 'com.acmerobotics.roadrunner' &&
+                details.requested.name == 'core') {
+            details.useVersion '0.5.6'
+        }
+    }
+}
+
+
 android {
     namespace = 'org.firstinspires.ftc.teamcode'
 
@@ -23,24 +33,31 @@ android {
     }
 }
 
-
 repositories {
-    maven {
-        url = 'https://maven.brott.dev/'
-    }
+    // make sure brott.dev is present (needed for some RR/dashboard artifacts)
+    maven { url 'https://maven.brott.dev/' }
 }
 
 dependencies {
     implementation project(':FtcRobotController')
 
+    // other libs you use
+    implementation 'org.ftclib.ftclib:core:2.1.1'
+    implementation 'org.openftc:apriltag:2.1.0'
 
-    implementation 'org.ftclib.ftclib:core:2.1.1' // core
-    implementation "com.acmerobotics.roadrunner:ftc:0.1.25"
-    implementation "com.acmerobotics.roadrunner:core:1.0.1"
-    implementation "com.acmerobotics.roadrunner:actions:1.0.1"
-    implementation "com.acmerobotics.dashboard:dashboard:0.5.1"
-    implementation 'org.openftc:apriltag:2.1.0' // apriltag detections
+    // Use Road Runner 0.5.x API (matches SampleMecanumDrive/TrajectorySequence)
+    // Prevent com.acmerobotics.roadrunner:ftc from pulling core:1.0.1 transitively
+    implementation('com.acmerobotics.roadrunner:ftc:0.1.25') {
+        exclude group: 'com.acmerobotics.roadrunner', module: 'core'   // don't pull core:1.0.1
+        exclude group: 'com.acmerobotics.roadrunner', module: 'actions' // don't pull actions:1.0.1
+    }
+
+    // Pull the 0.5 core explicitly (the API your code expects)
+    implementation 'com.acmerobotics.roadrunner:core:0.5.6'
+
+    // Dashboard: exclude RR transitive to avoid it dragging v1.x in
+    implementation('com.acmerobotics.dashboard:dashboard:0.5.1') {
+        exclude group: 'com.acmerobotics.roadrunner'
+    }
 }
-
-
 
