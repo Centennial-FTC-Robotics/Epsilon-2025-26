@@ -103,7 +103,7 @@ public class SampleTeleOp extends OpMode {
         driveFL = hardwareMap.get(DcMotorEx.class, "frontLeft");
         driveFR = hardwareMap.get(DcMotorEx.class, "frontRight");
 
-        turretXZ = hardwareMap.get(DcMotorEx.class, "turretXZ");
+        turretXZ = hardwareMap. get(DcMotorEx.class, "turretXZ");
         turretYZ = new SimpleServo(hardwareMap, "turretYZ", 0, 180, AngleUnit.DEGREES);
 
         flywheelMotor = hardwareMap.get(DcMotorEx.class, "flywheel");
@@ -179,8 +179,8 @@ public class SampleTeleOp extends OpMode {
         pusherAction = new PusherAction(pusher, RETRACT_ANGLE, PUSH_ANGLE, 0.08, 0.12);
         turretAction = new TurretAction(turretXZ, turretYZ, TURRET_YZ_MIN, TURRET_YZ_MAX, TURRET_YZ_STEP, turretYZAngle);
         intakeAction = new IntakeAction(intakeMotor, INTAKE_POWER);
-        flywheelAction = new FlywheelAction(flywheelMotor, /*spinUpSec=*/0.7, SHOOTER_POWER);
-        shootAction = new ShootAction(flywheelAction, pusherAction, /*keepFlywheelAfterShot=*/false);
+        flywheelAction = new FlywheelAction(flywheelMotor, 0.7, SHOOTER_POWER);
+        shootAction = new ShootAction(flywheelAction, pusherAction, intakeAction, 3.0);
 
         // --- camera / pipeline setup ---
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
@@ -277,7 +277,7 @@ public class SampleTeleOp extends OpMode {
         // Shooting: A triggers coordinated single shot
         boolean aPressed = aReader1.wasJustPressed() || aReader2.wasJustPressed();
         if (aPressed) {
-            shootAction.startSingleShot();
+            shootAction.start();
             telemetry.addData("Event", "A pressed (shoot) triggered");
         }
 

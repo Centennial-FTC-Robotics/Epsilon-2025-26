@@ -3,34 +3,52 @@ package org.firstinspires.ftc.teamcode.Actions;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
- * Coordinates FlywheelAction + PusherAction to perform a single-shot sequence:
- * 1) Spin flywheel (if not already)
- * 2) Wait for spin-up
- * 3) Start pusher push
- * 4) Wait for pusher to finish then optionally stop flywheel
+ * Coordinates Flywheel + Pusher + Intake for a single-shot sequence:
  *
- * Non-blocking: call update() each loop.
+ * 1) Spin up flywheel
+ * 2) Wait for flywheel ready
+ * 3) Extend pusher
+ * 4) Start intake
+ * 5) Wait ~3s
+ * 6) Stop flywheel + intake
+ * 7) Retract pusher
+ *
+ * Non-blocking: call update() every loop.
  */
 public class ShootAction implements RobotAction {
-    public enum State { IDLE, SPINNING_UP, PUSHING, WAITING_AFTER_PUSH, COMPLETE }
+
+    public enum State {
+        IDLE,
+        SPINNING_UP,
+        PUSHING,
+        SHOOTING,
+        RETRACTING
+    }
 
     private final FlywheelAction flywheel;
     private final PusherAction pusher;
-    private final boolean keepFlywheelAfterShot;
+    private final IntakeAction intake;
+
+    private final double shootTimeSeconds;
     private final ElapsedTime timer = new ElapsedTime();
 
     private State state = State.IDLE;
 
-    public ShootAction(FlywheelAction flywheel, PusherAction pusher, boolean keepFlywheelAfterShot) {
+    public ShootAction(FlywheelAction flywheel,
+                       PusherAction pusher,
+                       IntakeAction intake,
+                       double shootTimeSeconds) {
         this.flywheel = flywheel;
         this.pusher = pusher;
-        this.keepFlywheelAfterShot = keepFlywheelAfterShot;
+        this.intake = intake;
+        this.shootTimeSeconds = shootTimeSeconds;
     }
 
-    /** Starts the coordinated shoot sequence. */
-    public void startSingleShot() {
+    /** Start the full shooting sequence. */
+    public void start() {
         if (state != State.IDLE) return;
-        flywheel.spinUp(); // uses flywheel's configured power
+
+        flywheel.spinUp();
         timer.reset();
         state = State.SPINNING_UP;
     }
@@ -38,36 +56,38 @@ public class ShootAction implements RobotAction {
     @Override
     public void update() {
         switch (state) {
+
             case IDLE:
-                // nothing
                 break;
+
             case SPINNING_UP:
-                // wait until flywheel reports at-speed (or some timeout)
                 if (flywheel.isAtSpeed()) {
-                    // start pusher
                     pusher.startPush();
                     state = State.PUSHING;
                 }
                 break;
+
             case PUSHING:
-                // wait for pusher to finish
                 if (!pusher.isBusy()) {
+                    intake.on();
                     timer.reset();
-                    state = State.WAITING_AFTER_PUSH;
+                    state = State.SHOOTING;
                 }
                 break;
-            case WAITING_AFTER_PUSH:
-                // short delay to ensure the projectile clears
-                if (timer.seconds() >= 1) {
-                    if (!keepFlywheelAfterShot) {
-                        flywheel.stopFlywheel();
-                    }
-                    state = State.COMPLETE;
+
+            case SHOOTING:
+                if (timer.seconds() >= shootTimeSeconds) {
+                    intake.off();
+                    flywheel.stopFlywheel();
+                    pusher.stop(); // retract
+                    state = State.RETRACTING;
                 }
                 break;
-            case COMPLETE:
-                // mark idle after a tick so callers can re-trigger
-                state = State.IDLE;
+
+            case RETRACTING:
+                if (!pusher.isBusy()) {
+                    state = State.IDLE;
+                }
                 break;
         }
     }
@@ -75,6 +95,7 @@ public class ShootAction implements RobotAction {
     @Override
     public void stop() {
         flywheel.stopFlywheel();
+        intake.off();
         pusher.stop();
         state = State.IDLE;
     }
