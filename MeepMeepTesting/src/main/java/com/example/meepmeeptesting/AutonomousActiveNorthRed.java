@@ -7,7 +7,7 @@ import com.noahbres.meepmeep.core.colorscheme.scheme.*;
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
 
-public class AutonomousActiveNorth {
+public class AutonomousActiveNorthRed {
     public static void main(String[] args) {
         MeepMeep meepMeep = new MeepMeep(800);
 
@@ -35,7 +35,7 @@ public class AutonomousActiveNorth {
          */
 
         // (NEW) 3 Specimen Auto
-        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(t * -2.5, t * 0.5, Math.toRadians(0)))
+        myBot.runAction(myBot.getDrive().actionBuilder(new Pose2d(t * -2, t * 2, Math.toRadians(0)))
                 .waitSeconds(3.0)
                 .splineToConstantHeading(new Vector2d(t * -2, t * 0.5), Math.toRadians(180))
                 .turnTo(Math.toRadians(115))
@@ -47,7 +47,14 @@ public class AutonomousActiveNorth {
                 .lineToYLinearHeading(t * 1.5, Math.toRadians(270))
                 .splineToLinearHeading(new Pose2d(t * -2, t * 0.5, Math.toRadians(115)), Math.toRadians(180))
                 .waitSeconds(2.0)
-                .splineToLinearHeading(new Pose2d(t * -2.5, t * 0.5, Math.toRadians(0)), Math.toRadians(180))
+                .splineToLinearHeading(new Pose2d(t * 0.5, t * 1.5, Math.toRadians(90)), Math.toRadians(90))
+                .splineToConstantHeading(new Vector2d(t * 0.5, t * 2.25), Math.toRadians(90))
+                .waitSeconds(2.0)
+                .lineToYLinearHeading(t * 2, Math.toRadians(90))
+                .lineToYLinearHeading(t * 1.5, Math.toRadians(270))
+                .splineToLinearHeading(new Pose2d(t * -2, t * 0.5, Math.toRadians(115)), Math.toRadians(180))
+                .waitSeconds(2.0)
+                .splineToLinearHeading(new Pose2d(t * 0, t * 1, Math.toRadians(180)), Math.toRadians(0))
                 .build());
 
 

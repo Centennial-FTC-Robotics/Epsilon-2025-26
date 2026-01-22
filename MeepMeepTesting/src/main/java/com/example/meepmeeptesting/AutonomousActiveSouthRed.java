@@ -7,7 +7,7 @@ import com.noahbres.meepmeep.core.colorscheme.scheme.*;
 import com.noahbres.meepmeep.roadrunner.DefaultBotBuilder;
 import com.noahbres.meepmeep.roadrunner.entity.RoadRunnerBotEntity;
 
-public class AutonomousActiveSouth {
+public class AutonomousActiveSouthRed {
     public static void main(String[] args) {
         MeepMeep meepMeep = new MeepMeep(800);
 
