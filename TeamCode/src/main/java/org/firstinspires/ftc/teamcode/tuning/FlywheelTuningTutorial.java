@@ -58,6 +58,14 @@ public class FlywheelTuningTutorial extends OpMode {
             stepIndex = (stepIndex + 1) % stepSizes.length;
         }
 
+        if (gamepad1.dpad_right){
+            F += stepSizes[stepIndex];
+        }
+
+        if (gamepad1.dpad_left) {
+            F -= stepSizes[stepIndex];
+        }
+
         if (gamepad1.dpad_up){
             P += stepSizes[stepIndex];
         }
@@ -65,6 +73,21 @@ public class FlywheelTuningTutorial extends OpMode {
         if (gamepad1.dpad_down) {
             P -= stepSizes[stepIndex];
         }
+
+        PIDFCoefficients pidfCoefficients = new PIDFCoefficients(P, 0, 0, F);
+        flywheelMotor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, pidfCoefficients);
+
+        flywheelMotor.setVelocity(targetVelocity);
+        double curVelocity = flywheelMotor.getVelocity();
+        double error = targetVelocity - curVelocity;
+
+        telemetry.addData("Target Velocity", targetVelocity);
+        telemetry.addData("Current Velocity", curVelocity);
+        telemetry.addData("Error", error);
+        telemetry.addLine("--------------------------------");
+        telemetry.addData("Tuning P", "%.4f (Down/Up Dpad)", P);
+        telemetry.addData("Tuning F", "%.4f (Left/Right Dpad)", P);
+        telemetry.addData("Step Size", "%.4f (B)", stepSizes[stepIndex]);
     }
 }
 
