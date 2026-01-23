@@ -272,6 +272,11 @@ public class SampleTeleOp extends OpMode {
         // Intake: toggle on B press (wasJustPressed)
         if (bReader1.wasJustPressed() || bReader2.wasJustPressed()) {
             intakeAction.toggle();
+            if (intakeAction.isBusy()) {
+                flywheelAction.reverse();
+            } else {
+                flywheelAction.stop();
+            }
         }
 
         // Shooting: A triggers coordinated single shot

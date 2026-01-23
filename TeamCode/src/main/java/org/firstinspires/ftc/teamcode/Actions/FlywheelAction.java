@@ -51,6 +51,14 @@ public class FlywheelAction implements RobotAction {
         enabled = false;
     }
 
+    public void on() {
+        motor.setPower(rampPower);
+    }
+
+    public void reverse() {
+        motor.setPower(-rampPower);
+    }
+
     /** Roughly indicates whether the flywheel has had time to reach operating speed. */
     public boolean isAtSpeed() {
         if (!enabled) return false;

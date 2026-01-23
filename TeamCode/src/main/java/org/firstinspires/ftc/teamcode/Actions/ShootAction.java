@@ -77,7 +77,7 @@ public class ShootAction implements RobotAction {
 
             case SHOOTING:
                 if (timer.seconds() >= shootTimeSeconds) {
-                    intake.off();
+                    intake.off(false);
                     flywheel.stopFlywheel();
                     pusher.stop(); // retract
                     state = State.RETRACTING;
