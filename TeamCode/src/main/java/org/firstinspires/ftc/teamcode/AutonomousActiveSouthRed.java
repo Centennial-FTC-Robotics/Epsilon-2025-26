@@ -156,7 +156,7 @@ public class AutonomousActiveSouthRed extends LinearOpMode {
         if (detections == null) return;
 
         for (AprilTagDetection tag : detections) {
-            if (tag.id == 20) {
+            if (tag.id == 24) {
                 double yaw = Math.atan2(tag.pose.y, tag.pose.x);
                 double pitch = Math.atan2(tag.pose.z,
                         Math.hypot(tag.pose.x, tag.pose.y));
