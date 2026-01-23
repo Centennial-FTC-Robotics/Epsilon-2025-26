@@ -25,8 +25,8 @@ import org.firstinspires.ftc.teamcode.AprilTagDetectionPipeline;
 
 import java.util.ArrayList;
 
-@Autonomous(name = "AutonomousActiveNorthBlue", group = "Auto")
-public class AutonomousActiveNorthBlue extends LinearOpMode {
+@Autonomous(name = "AutonomousActiveNorthRed", group = "Auto")
+public class AutonomousActiveNorthRed extends LinearOpMode {
 
     private static final double t = 23.5;
 
@@ -48,10 +48,11 @@ public class AutonomousActiveNorthBlue extends LinearOpMode {
 
         drive = new SampleMecanumDrive(hardwareMap);
 
+        // Mirror on X axis: flip Y values (multiply by -1). Invert angles.
         Pose2d startPose = new Pose2d(
                 t * -2,
-                t * -2,
-                Math.toRadians(0)
+                t * 2, // flipped sign of Y
+                Math.toRadians(0 * -1) // angle inverted (still 0)
         );
         drive.setPoseEstimate(startPose);
 
@@ -74,15 +75,15 @@ public class AutonomousActiveNorthBlue extends LinearOpMode {
         waitForStart();
         if (isStopRequested()) return;
 
-        /* ===================== FIRST PATH ===================== */
+        /* ===================== FIRST PATH (mirrored) ===================== */
         Pose2d poseEstimate = drive.getPoseEstimate();
         TrajectorySequenceBuilder driveSequence = drive.trajectorySequenceBuilder(poseEstimate)
                 .waitSeconds(3.0)
                 .splineToConstantHeading(
-                        new Vector2d(t * -2, t * -0.5),
-                        Math.toRadians(-180)
+                        new Vector2d(t * -2, t * 0.5), // Y flipped
+                        Math.toRadians(-180 * -1) // angle inverted
                 )
-                .turn(Math.toRadians(-115))
+                .turn(Math.toRadians(115 * -1)) // invert turn angle sign
                 .waitSeconds(0.1);
 
         drive.followTrajectorySequence(driveSequence.build());
@@ -106,25 +107,25 @@ public class AutonomousActiveNorthBlue extends LinearOpMode {
         autoAimActive = false;
         flywheelAction.stopFlywheel();
 
-        /* ===================== CONTINUE PATH ===================== */
+        /* ===================== CONTINUE PATH (mirrored) ===================== */
         poseEstimate = drive.getPoseEstimate();
         TrajectorySequenceBuilder restSequence = drive.trajectorySequenceBuilder(poseEstimate)
                 .splineToLinearHeading(
-                        new Pose2d(t * -0.5, t * -1.5, Math.toRadians(-90)),
-                        Math.toRadians(-90)
+                        new Pose2d(t * -0.5, t * 1.5, Math.toRadians(90 * -1)), // Y flipped, angle inverted
+                        Math.toRadians(90 * -1)
                 )
                 .splineToConstantHeading(
-                        new Vector2d(t * -0.5, t * -2.25),
-                        Math.toRadians(-90)
+                        new Vector2d(t * -0.5, t * 2.25), // Y flipped
+                        Math.toRadians(90 * -1)
                 )
                 .waitSeconds(2.0)
                 .splineToLinearHeading(
-                        new Pose2d(t * -2, t * -2.25, Math.toRadians(-90)),
-                        Math.toRadians(-90)
+                        new Pose2d(t * -2, t * 2.25, Math.toRadians(90 * -1)),
+                        Math.toRadians(90 * -1)
                 )
                 .splineToLinearHeading(
-                        new Pose2d(t * -1.5, t * -2.25, Math.toRadians(-90)),
-                        Math.toRadians(-90)
+                        new Pose2d(t * -1.5, t * 2.25, Math.toRadians(90 * -1)),
+                        Math.toRadians(90 * -1)
                 );
 
         drive.followTrajectorySequence(restSequence.build());
@@ -157,13 +158,17 @@ public class AutonomousActiveNorthBlue extends LinearOpMode {
         if (detections == null) return;
 
         for (AprilTagDetection tag : detections) {
-            if (tag.id == 20) {
-                double yaw = Math.atan2(tag.pose.y, tag.pose.x);
+            if (tag.id == 24) {
+                // For mirror on X axis: flip Y component (negate) before computing angles,
+                // and invert resulting angles by multiplying by -1.
+                double flippedY = -tag.pose.y;
+                double yaw = Math.atan2(flippedY, tag.pose.x);
                 double pitch = Math.atan2(tag.pose.z,
-                        Math.hypot(tag.pose.x, tag.pose.y));
+                        Math.hypot(tag.pose.x, flippedY));
 
-                turretAction.rotateXZ(0.02 * Math.toDegrees(yaw));
-                turretAction.setYZAngle(90.0 - Math.toDegrees(pitch));
+                // invert angles as requested
+                turretAction.rotateXZ(0.02 * -Math.toDegrees(yaw));
+                turretAction.setYZAngle(90.0 - (-Math.toDegrees(pitch)));
                 return;
             }
         }
