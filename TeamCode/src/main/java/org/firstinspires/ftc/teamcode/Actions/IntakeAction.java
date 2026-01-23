@@ -40,7 +40,7 @@ public class IntakeAction implements RobotAction {
     }
 
     public void off(boolean reverse) {
-        reversing = false;
+        reversing = reverse;
         setPower(0.0);
     }
 

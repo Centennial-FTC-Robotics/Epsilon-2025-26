@@ -52,10 +52,12 @@ public class FlywheelAction implements RobotAction {
     }
 
     public void on() {
+        enabled = true;
         motor.setPower(rampPower);
     }
 
     public void reverse() {
+        enabled = true;
         motor.setPower(-rampPower);
     }
 

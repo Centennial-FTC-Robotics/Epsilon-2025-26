@@ -29,7 +29,7 @@ import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
 
 @TeleOp(name = "TeleOpBlue")
-public class SampleTeleOp extends OpMode {
+public class TeleOpBlue extends OpMode {
 
     private DcMotorEx driveBL;
     private DcMotorEx driveBR;
