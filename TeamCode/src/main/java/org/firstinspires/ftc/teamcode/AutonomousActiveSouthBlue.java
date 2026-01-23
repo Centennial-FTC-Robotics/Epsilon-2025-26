@@ -32,7 +32,6 @@ public class AutonomousActiveSouthBlue extends LinearOpMode {
 
     private FlywheelAction flywheelAction;
     private IntakeAction intakeAction;
-    private PusherAction pusherAction;
     private TurretAction turretAction;
     private ShootAction shootAction;
 
@@ -59,14 +58,12 @@ public class AutonomousActiveSouthBlue extends LinearOpMode {
         ServoEx turretYZ = new SimpleServo(hardwareMap, "turretYZ", 0, 180, AngleUnit.DEGREES);
         DcMotorEx flywheel = hardwareMap.get(DcMotorEx.class, "flywheel");
         DcMotorEx intake = hardwareMap.get(DcMotorEx.class, "intake");
-        ServoEx pusher = new SimpleServo(hardwareMap, "pusher", 0, 180, AngleUnit.DEGREES);
 
         // ---- Actions ----
-        pusherAction = new PusherAction(pusher, 180.0, 6.7, 0.08, 0.12);
         turretAction = new TurretAction(turretXZ, turretYZ, 0, 180, 2.5, 90);
         intakeAction = new IntakeAction(intake, 1.0);
         flywheelAction = new FlywheelAction(flywheel, 0.7, 1.0);
-        shootAction = new ShootAction(flywheelAction, pusherAction, intakeAction, 3.0);
+        shootAction = new ShootAction(flywheelAction, intakeAction, 3.0);
 
         // ---- vision ----
         setupAprilTags();
@@ -138,7 +135,6 @@ public class AutonomousActiveSouthBlue extends LinearOpMode {
         turretAction.update();
         intakeAction.update();
         flywheelAction.update();
-        pusherAction.update();
         shootAction.update();
     }
 
@@ -146,7 +142,6 @@ public class AutonomousActiveSouthBlue extends LinearOpMode {
         turretAction.stop();
         intakeAction.stop();
         flywheelAction.stop();
-        pusherAction.stop();
         shootAction.stop();
     }
 

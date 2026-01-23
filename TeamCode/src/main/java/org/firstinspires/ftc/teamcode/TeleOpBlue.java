@@ -40,7 +40,6 @@ public class TeleOpBlue extends OpMode {
     private ServoEx turretYZ;
     private DcMotorEx flywheelMotor;
     private DcMotorEx intakeMotor;
-    private ServoEx pusher;
 
     private IMU imu;
     private MecanumDrive mecanum;
@@ -53,7 +52,6 @@ public class TeleOpBlue extends OpMode {
     private ButtonReader dpadLeft1, dpadLeft2, dpadRight1, dpadRight2, dpadUp1, dpadUp2, dpadDown1, dpadDown2;
 
     // Actions
-    private PusherAction pusherAction;
     private TurretAction turretAction;
     private IntakeAction intakeAction;
     private FlywheelAction flywheelAction;
@@ -108,9 +106,6 @@ public class TeleOpBlue extends OpMode {
 
         flywheelMotor = hardwareMap.get(DcMotorEx.class, "flywheel");
         intakeMotor = hardwareMap.get(DcMotorEx.class, "intake");
-
-        pusher = new SimpleServo(hardwareMap, "pusher", 0, 180, AngleUnit.DEGREES);
-        // pusherAction will set this to retract angle at construction
 
         imu = hardwareMap.get(BHI260IMU.class, "imu");
 
@@ -175,12 +170,53 @@ public class TeleOpBlue extends OpMode {
         dpadDown1 = new ButtonReader(gamepad1Ex, GamepadKeys.Button.DPAD_DOWN);
         dpadDown2 = new ButtonReader(gamepad2Ex, GamepadKeys.Button.DPAD_DOWN);
 
+        // --- ADDED: seed ButtonReader states to avoid spurious "just pressed" on first loop
+        readValues(); // ADDED TELEMETRY: call readValues() once here to initialize reader internal state
+
+        // --- ADDED TELEMETRY: display initial button-reader states and trigger values
+        // Buttons: isDown() and wasJustPressed() for quick debugging
+        telemetry.addData("A1 isDown", aReader1.isDown()); // ADDED TELEMETRY
+        telemetry.addData("A1 wasJustPressed", aReader1.wasJustPressed()); // ADDED TELEMETRY
+        telemetry.addData("A2 isDown", aReader2.isDown()); // ADDED TELEMETRY
+        telemetry.addData("A2 wasJustPressed", aReader2.wasJustPressed()); // ADDED TELEMETRY
+
+        telemetry.addData("B1 isDown", bReader1.isDown()); // ADDED TELEMETRY
+        telemetry.addData("B1 wasJustPressed", bReader1.wasJustPressed()); // ADDED TELEMETRY
+        telemetry.addData("B2 isDown", bReader2.isDown()); // ADDED TELEMETRY
+        telemetry.addData("B2 wasJustPressed", bReader2.wasJustPressed()); // ADDED TELEMETRY
+
+        telemetry.addData("Y1 isDown", yReader1.isDown()); // ADDED TELEMETRY
+        telemetry.addData("Y1 wasJustPressed", yReader1.wasJustPressed()); // ADDED TELEMETRY
+        telemetry.addData("Y2 isDown", yReader2.isDown()); // ADDED TELEMETRY
+        telemetry.addData("Y2 wasJustPressed", yReader2.wasJustPressed()); // ADDED TELEMETRY
+
+        telemetry.addData("DPadLeft1", dpadLeft1.isDown()); // ADDED TELEMETRY
+        telemetry.addData("DPadLeft2", dpadLeft2.isDown()); // ADDED TELEMETRY
+        telemetry.addData("DPadRight1", dpadRight1.isDown()); // ADDED TELEMETRY
+        telemetry.addData("DPadRight2", dpadRight2.isDown()); // ADDED TELEMETRY
+        telemetry.addData("DPadUp1", dpadUp1.isDown()); // ADDED TELEMETRY
+        telemetry.addData("DPadUp2", dpadUp2.isDown()); // ADDED TELEMETRY
+        telemetry.addData("DPadDown1", dpadDown1.isDown()); // ADDED TELEMETRY
+        telemetry.addData("DPadDown2", dpadDown2.isDown()); // ADDED TELEMETRY
+
+        // Triggers: show analog values for left/right triggers on both gamepads
+        double rt1_init = gamepad1Ex.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER); // ADDED TELEMETRY
+        double rt2_init = gamepad2Ex.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER); // ADDED TELEMETRY
+        double lt1_init = gamepad1Ex.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER); // ADDED TELEMETRY
+        double lt2_init = gamepad2Ex.getTrigger(GamepadKeys.Trigger.LEFT_TRIGGER); // ADDED TELEMETRY
+
+        telemetry.addData("RT1 (init)", "%.2f", rt1_init); // ADDED TELEMETRY
+        telemetry.addData("RT2 (init)", "%.2f", rt2_init); // ADDED TELEMETRY
+        telemetry.addData("LT1 (init)", "%.2f", lt1_init); // ADDED TELEMETRY
+        telemetry.addData("LT2 (init)", "%.2f", lt2_init); // ADDED TELEMETRY
+
+        telemetry.update(); // ADDED TELEMETRY: push initial states to driver station
+
         // instantiate Actions (tune timings/powers to your hardware)
-        pusherAction = new PusherAction(pusher, RETRACT_ANGLE, PUSH_ANGLE, 0.08, 0.12);
         turretAction = new TurretAction(turretXZ, turretYZ, TURRET_YZ_MIN, TURRET_YZ_MAX, TURRET_YZ_STEP, turretYZAngle);
         intakeAction = new IntakeAction(intakeMotor, INTAKE_POWER);
         flywheelAction = new FlywheelAction(flywheelMotor, 0.7, SHOOTER_POWER);
-        shootAction = new ShootAction(flywheelAction, pusherAction, intakeAction, 3.0);
+        shootAction = new ShootAction(flywheelAction, intakeAction, 3.0);
 
         // --- camera / pipeline setup ---
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
@@ -230,16 +266,15 @@ public class TeleOpBlue extends OpMode {
         double rt1 = gamepad1Ex.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER);
         double rt2 = gamepad2Ex.getTrigger(GamepadKeys.Trigger.RIGHT_TRIGGER);
         double rt = Math.max(rt1, rt2);
-        double driveScale = 1.0 - (0.75 * rt);
+        double driveScale = 1.0 - (0.75 * rt); // at rt=1 driveScale=0.25 meaning still moving at 25% maximum. Possibly intended, but note behavior.
 
         double rotationPower = (Math.abs(rx) > STICK_DEADZONE) ? rx * MAX_ROTATION_POWER : 0.0;
-        double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.RADIANS);
+        double heading = imu.getRobotYawPitchRollAngles().getYaw(AngleUnit.DEGREES);
 
         mecanum.setMaxSpeed(driveScale);
         mecanum.driveFieldCentric(lx, ly, rotationPower, heading);
 
         // update Actions
-        pusherAction.update();
         flywheelAction.update();
         turretAction.update();
         intakeAction.update();
@@ -281,7 +316,7 @@ public class TeleOpBlue extends OpMode {
 
         // Shooting: A triggers coordinated single shot
         boolean aPressed = aReader1.wasJustPressed() || aReader2.wasJustPressed();
-        if (aPressed) {
+        if (aPressed && !shootAction.isBusy()) {
             shootAction.start();
             telemetry.addData("Event", "A pressed (shoot) triggered");
         }
@@ -389,6 +424,7 @@ public class TeleOpBlue extends OpMode {
         telemetry.addData("Flywheel Power", "%.2f", flywheelMotor.getPower());
         telemetry.addData("Turret YZ Angle (target)", "%.1f", turretAction.getYZAngle());
         telemetry.addData("Heading (deg)", "%.1f", Math.toDegrees(heading));
+        telemetry.addData("Camera FPS", "%.1f", camera.getFps());
         telemetry.update();
     }
 
@@ -400,7 +436,6 @@ public class TeleOpBlue extends OpMode {
         turretAction.stop();
         intakeAction.stop();
         flywheelAction.stop();
-        pusherAction.stop();
         shootAction.stop();
 
         turretXZ.setPower(0.0);

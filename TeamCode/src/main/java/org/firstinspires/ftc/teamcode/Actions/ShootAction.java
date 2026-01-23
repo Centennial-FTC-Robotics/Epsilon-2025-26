@@ -3,15 +3,13 @@ package org.firstinspires.ftc.teamcode.Actions;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
- * Coordinates Flywheel + Pusher + Intake for a single-shot sequence:
+ * Coordinates Flywheel + Intake for a single-shot sequence:
  *
  * 1) Spin up flywheel
  * 2) Wait for flywheel ready
- * 3) Extend pusher
- * 4) Start intake
- * 5) Wait ~3s
- * 6) Stop flywheel + intake
- * 7) Retract pusher
+ * 3) Start intake to feed all balls
+ * 4) Wait ~shootTimeSeconds
+ * 5) Stop flywheel + intake
  *
  * Non-blocking: call update() every loop.
  */
@@ -20,13 +18,10 @@ public class ShootAction implements RobotAction {
     public enum State {
         IDLE,
         SPINNING_UP,
-        PUSHING,
-        SHOOTING,
-        RETRACTING
+        SHOOTING
     }
 
     private final FlywheelAction flywheel;
-    private final PusherAction pusher;
     private final IntakeAction intake;
 
     private final double shootTimeSeconds;
@@ -35,11 +30,9 @@ public class ShootAction implements RobotAction {
     private State state = State.IDLE;
 
     public ShootAction(FlywheelAction flywheel,
-                       PusherAction pusher,
                        IntakeAction intake,
                        double shootTimeSeconds) {
         this.flywheel = flywheel;
-        this.pusher = pusher;
         this.intake = intake;
         this.shootTimeSeconds = shootTimeSeconds;
     }
@@ -62,13 +55,6 @@ public class ShootAction implements RobotAction {
 
             case SPINNING_UP:
                 if (flywheel.isAtSpeed()) {
-                    pusher.startPush();
-                    state = State.PUSHING;
-                }
-                break;
-
-            case PUSHING:
-                if (!pusher.isBusy()) {
                     intake.on();
                     timer.reset();
                     state = State.SHOOTING;
@@ -77,15 +63,8 @@ public class ShootAction implements RobotAction {
 
             case SHOOTING:
                 if (timer.seconds() >= shootTimeSeconds) {
-                    intake.off(false);
+                    intake.off();
                     flywheel.stopFlywheel();
-                    pusher.stop(); // retract
-                    state = State.RETRACTING;
-                }
-                break;
-
-            case RETRACTING:
-                if (!pusher.isBusy()) {
                     state = State.IDLE;
                 }
                 break;
@@ -96,7 +75,6 @@ public class ShootAction implements RobotAction {
     public void stop() {
         flywheel.stopFlywheel();
         intake.off();
-        pusher.stop();
         state = State.IDLE;
     }
 

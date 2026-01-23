@@ -1,7 +1,13 @@
 package org.firstinspires.ftc.teamcode.Actions;
 
+import static org.firstinspires.ftc.teamcode.drive.DriveConstants.MOTOR_VELO_PID;
+
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 
 /**
  * Simple flywheel controller. We implement a spin-up delay to simulate waiting for
@@ -28,6 +34,8 @@ public class FlywheelAction implements RobotAction {
         this.motor = motor;
         this.spinUpSeconds = spinUpSeconds;
         this.rampPower = Math.abs(rampPower);
+
+        motor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, MOTOR_VELO_PID);
         motor.setPower(0.0);
     }
 
